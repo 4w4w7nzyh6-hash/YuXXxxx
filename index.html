@@ -1,0 +1,4103 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="Character 404 / C404 维基站 —— 虚构异常组织内部维基站，记录现实层异常、数据异常、异常效应、异常事件与战斗单位。">
+<meta name="color-scheme" content="dark light">
+<title>Character 404 / C404 维基站</title>
+<style>
+/* ============================================================
+   SECTION: 主题变量（深色为默认，[data-theme="light"] 覆盖）
+   ============================================================ */
+:root,
+html[data-theme="dark"] {
+  --bg:          #070a0d;   /* 深黑 */
+  --bg-2:        #0b1015;   /* 灰黑 */
+  --panel:       #0e1419;
+  --panel-2:     #121b22;
+  --line:        rgba(126, 168, 186, .18);
+  --line-strong: rgba(126, 168, 186, .34);
+  --text:        #c9d7df;
+  --text-dim:    #8ea3b0;
+  --text-faint:  #62757f;
+  --blue:        #4c7fa3;   /* 冷蓝 */
+  --teal:        #2f6f68;   /* 低饱和青绿 */
+  --glitch:      #45e6d6;   /* 故障青 */
+  --gold:        #b8933f;   /* 暗金 */
+  --red:         #d9534f;   /* 低亮红 */
+  --shadow:      0 14px 34px rgba(0, 0, 0, .52);
+  --scan-alpha:  .055;
+  --noise-alpha: .05;
+  --sel:         rgba(69, 230, 214, .22);
+}
+
+html[data-theme="light"] {
+  --bg:          #eef1f2;
+  --bg-2:        #e4e9eb;
+  --panel:       #f8fafb;
+  --panel-2:     #eef3f5;
+  --line:        rgba(30, 62, 78, .18);
+  --line-strong: rgba(30, 62, 78, .34);
+  --text:        #16222b;
+  --text-dim:    #465866;
+  --text-faint:  #748695;
+  --blue:        #2f5f85;
+  --teal:        #2b6f66;
+  --glitch:      #10857c;
+  --gold:        #8a6516;
+  --red:         #b03a36;
+  --shadow:      0 12px 28px rgba(22, 34, 43, .12);
+  --scan-alpha:  .03;
+  --noise-alpha: .025;
+  --sel:         rgba(16, 133, 124, .18);
+}
+
+/* ============================================================
+   SECTION: 全局重置与排版基础
+   ============================================================ */
+*, *::before, *::after { box-sizing: border-box; }
+
+html {
+  scroll-behavior: smooth;
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  background: var(--bg);
+  color: var(--text);
+  font-family: system-ui, -apple-system, "PingFang SC", "Microsoft YaHei",
+               "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+  font-size: 16px;
+  line-height: 1.72;
+  letter-spacing: .01em;
+  transition: background-color .3s ease, color .3s ease;
+}
+
+::selection { background: var(--sel); }
+
+h1, h2, h3, h4 {
+  margin: 0;
+  font-weight: 650;
+  line-height: 1.3;
+  letter-spacing: .02em;
+}
+
+p { margin: 0 0 .9em; }
+p:last-child { margin-bottom: 0; }
+
+a { color: var(--glitch); text-decoration: none; }
+a:hover { text-decoration: underline; }
+
+button {
+  font-family: inherit;
+  font-size: inherit;
+  color: inherit;
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+
+/* 编号、代号等技术性文本使用等宽字体，强化档案感 */
+.code {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas,
+               "Courier New", monospace;
+  font-size: .84em;
+  letter-spacing: .06em;
+  font-variant-ligatures: none;
+}
+
+/* 各区块锚点滚动时避开固定导航栏 */
+section[id] { scroll-margin-top: 86px; }
+
+/* ============================================================
+   SECTION: 背景纹理层（扫描线 + 噪点 + 数据流），不拦截鼠标
+   ============================================================ */
+.fx {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* 水平扫描线 */
+.fx-scan {
+  background-image: repeating-linear-gradient(
+    to bottom,
+    currentColor 0 1px,
+    transparent 1px 3px);
+  color: var(--text);
+  opacity: var(--scan-alpha);
+}
+
+/* 细密噪点（内联 SVG，无外部资源） */
+.fx-noise {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23n)' opacity='0.5'/%3E%3C/svg%3E");
+  opacity: var(--noise-alpha);
+}
+
+/* 缓慢下行的数据流竖纹 */
+.fx-stream {
+  background-image: repeating-linear-gradient(
+    100deg,
+    transparent 0 46px,
+    var(--glitch) 46px 47px,
+    transparent 47px 94px);
+  opacity: .045;
+  animation: streamShift 24s linear infinite;
+}
+
+@keyframes streamShift {
+  from { background-position: 0 0; }
+  to   { background-position: 0 -280px; }
+}
+
+/* 边缘暗角，压低周边亮度以突出正文 */
+.vignette::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 1;
+  background: radial-gradient(120% 80% at 50% 0%,
+              transparent 45%, rgba(0, 0, 0, .35) 100%);
+  opacity: .8;
+}
+html[data-theme="light"] .vignette::after {
+  background: radial-gradient(120% 80% at 50% 0%,
+              transparent 50%, rgba(22, 34, 43, .07) 100%);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  .fx-stream, .live { animation: none; }
+  * { transition-duration: .001s !important; }
+}
+
+/* ============================================================
+   SECTION: 顶部导航栏（固定）
+   ============================================================ */
+.nav {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  z-index: 50;
+  background: var(--bg);            /* 不支持 color-mix 时的兜底 */
+  background: color-mix(in srgb, var(--bg) 86%, transparent);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border-bottom: 1px solid var(--line);
+  transition: box-shadow .25s ease, background-color .3s ease;
+}
+.nav.is-scrolled { box-shadow: var(--shadow); }
+
+.nav-inner {
+  max-width: 1240px;
+  margin: 0 auto;
+  padding: 0 clamp(14px, 3vw, 30px);
+  min-height: 62px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.brand {
+  display: flex;
+  align-items: baseline;
+  gap: 9px;
+  min-width: 0;
+  font-weight: 700;
+  letter-spacing: .04em;
+  white-space: nowrap;
+}
+.brand-mark {
+  display: inline-block;
+  width: 10px; height: 10px;
+  border: 1px solid var(--glitch);
+  background: rgba(69, 230, 214, .3);   /* 兜底 */
+  background: color-mix(in srgb, var(--glitch) 40%, transparent);
+  transform: rotate(45deg);
+  align-self: center;
+  flex: none;
+}
+.brand b { color: var(--text); font-weight: 700; }
+.brand span { color: var(--text-faint); font-weight: 500; font-size: .9em; }
+
+.nav-links {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  flex-wrap: wrap;
+}
+.nav-links a {
+  position: relative;
+  display: block;
+  padding: 8px 11px;
+  font-size: .9em;
+  color: var(--text-dim);
+  border-radius: 3px;
+  transition: color .2s ease, background-color .2s ease;
+}
+.nav-links a:hover {
+  color: var(--text);
+  background: var(--panel-2);
+  text-decoration: none;
+}
+/* 当前所在区块的高亮指示条 */
+.nav-links a.is-active { color: var(--glitch); }
+.nav-links a.is-active::after {
+  content: "";
+  position: absolute;
+  left: 11px; right: 11px; bottom: 3px;
+  height: 1px;
+  background: var(--glitch);
+}
+
+.nav-tools { display: flex; align-items: center; gap: 8px; flex: none; }
+
+.btn-icon {
+  width: 40px; height: 40px;
+  display: grid;
+  place-items: center;
+  border: 1px solid var(--line);
+  border-radius: 3px;
+  color: var(--text-dim);
+  background: var(--panel);
+  transition: color .2s ease, border-color .2s ease, transform .2s ease;
+}
+.btn-icon:hover {
+  color: var(--glitch);
+  border-color: var(--line-strong);
+  transform: translateY(-1px);
+}
+.btn-icon svg { width: 18px; height: 18px; display: block; }
+html[data-theme="light"] .icon-moon { display: none; }
+html[data-theme="dark"]  .icon-sun  { display: none; }
+
+/* 移动端菜单开关 */
+.btn-menu { display: none; }
+
+@media (max-width: 900px) {
+  .btn-menu { display: grid; }
+  .nav-inner { min-height: 58px; }
+  .brand span { display: none; }
+  .nav-links {
+    flex-basis: 100%;
+    margin-left: 0;
+    display: none;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0;
+    padding-bottom: 10px;
+    border-top: 1px solid var(--line);
+  }
+  .nav-links.is-open { display: flex; }
+  .nav-links a { padding: 13px 6px; font-size: 1rem; border-bottom: 1px solid var(--line); }
+  .nav-links a:last-child { border-bottom: none; }
+  .nav-links a.is-active::after { display: none; }
+}
+
+/* ============================================================
+   SECTION: 版式容器与区块标题
+   ============================================================ */
+.wrap {
+  position: relative;
+  z-index: 2;
+  max-width: 1240px;
+  margin: 0 auto;
+  padding: 0 clamp(14px, 3vw, 30px);
+}
+
+.block { padding: clamp(46px, 7vw, 84px) 0; }
+.block + .block { border-top: 1px solid var(--line); }
+
+.block-head {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 18px;
+  flex-wrap: wrap;
+  margin-bottom: 26px;
+}
+.block-title {
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+.block-title h2 { font-size: clamp(1.28rem, 2.6vw, 1.72rem); }
+/* 档案感的两位序号前缀 */
+.block-title .idx {
+  color: var(--text-faint);
+  border: 1px solid var(--line);
+  padding: 1px 7px;
+  border-radius: 2px;
+  font-size: .76em;
+  letter-spacing: .12em;
+}
+.block-note {
+  color: var(--text-faint);
+  font-size: .86em;
+  max-width: 46ch;
+}
+
+.lede {
+  color: var(--text-dim);
+  max-width: 76ch;
+  margin: -8px 0 28px;
+}
+
+/* ============================================================
+   SECTION: 通用卡片 / 分级标签
+   ============================================================ */
+.grid {
+  display: grid;
+  gap: 16px;
+  grid-template-columns: repeat(auto-fit, minmax(min(270px, 100%), 1fr));
+}
+
+.card {
+  position: relative;
+  min-width: 0;
+  padding: 20px 20px 18px;
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  /* 左上角的档案切口装饰 */
+  clip-path: polygon(0 0, calc(100% - 14px) 0, 100% 14px, 100% 100%, 0 100%);
+  transition: transform .22s ease, border-color .22s ease,
+              box-shadow .22s ease, background-color .22s ease;
+}
+.card:hover {
+  transform: translateY(-3px);
+  border-color: var(--glitch);
+  box-shadow: var(--shadow);
+  background: var(--panel-2);
+}
+
+.card-code {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 10px;
+  color: var(--text-faint);
+}
+.card-code .abbr {
+  color: var(--glitch);
+  border: 1px solid var(--line-strong);
+  padding: 1px 8px;
+  border-radius: 2px;
+  font-size: .8em;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+}
+.card-title { font-size: 1.06rem; margin-bottom: 8px; }
+.card-desc { color: var(--text-dim); font-size: .92em; }
+.card-foot {
+  margin-top: 14px;
+  padding-top: 12px;
+  border-top: 1px dashed var(--line);
+  color: var(--text-faint);
+  font-size: .82em;
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+/* 分级标签：故障青 / 暗金 / 低亮红 */
+.pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 1px 8px;
+  border-radius: 2px;
+  font-size: .78em;
+  letter-spacing: .08em;
+  border: 1px solid currentColor;
+  white-space: nowrap;
+}
+.pill::before {
+  content: "";
+  width: 5px; height: 5px;
+  border-radius: 50%;
+  background: currentColor;
+  flex: none;
+}
+.p-cyan { color: var(--glitch); }
+.p-gold { color: var(--gold); }
+.p-red  { color: var(--red); }
+.p-teal { color: var(--teal); }
+.p-blue { color: var(--blue); }
+.p-dim  { color: var(--text-faint); }
+
+/* ============================================================
+   SECTION: 首页横幅
+   ============================================================ */
+.hero {
+  position: relative;
+  z-index: 2;
+  padding: clamp(92px, 15vw, 168px) 0 clamp(52px, 8vw, 92px);
+  border-bottom: 1px solid var(--line);
+  overflow: hidden;
+}
+.hero-frame {
+  position: absolute;
+  inset: clamp(18px, 4vw, 40px) 0 auto;
+  height: 0;
+  border-top: 1px solid var(--line);
+}
+.hero .kicker {
+  color: var(--text-faint);
+  letter-spacing: .3em;
+  font-size: .78em;
+  margin-bottom: 18px;
+  text-transform: uppercase;
+}
+.hero h1 {
+  font-size: clamp(2.4rem, 9vw, 5.2rem);
+  letter-spacing: .04em;
+  line-height: 1.02;
+  margin-bottom: 6px;
+  position: relative;
+  display: inline-block;
+}
+/* 轻微故障感：常态几乎不可见，仅在 hover 与周期性抖动时显现 */
+.glitch::before,
+.glitch::after {
+  content: attr(data-text);
+  position: absolute;
+  left: 0; top: 0;
+  width: 100%;
+  pointer-events: none;
+  opacity: 0;
+}
+.glitch::before { color: var(--glitch); }
+.glitch::after  { color: var(--red); }
+.glitch:hover::before { opacity: .62; animation: gl1 .42s steps(2, end) infinite; }
+.glitch:hover::after  { opacity: .5;  animation: gl2 .42s steps(2, end) infinite; }
+@keyframes gl1 {
+  0%,100% { transform: translate(0,0); clip-path: inset(0 0 74% 0); }
+  30%     { transform: translate(-3px,1px); clip-path: inset(28% 0 40% 0); }
+  60%     { transform: translate(2px,-1px); clip-path: inset(62% 0 8% 0); }
+}
+@keyframes gl2 {
+  0%,100% { transform: translate(0,0); clip-path: inset(52% 0 12% 0); }
+  40%     { transform: translate(3px,-2px); clip-path: inset(10% 0 66% 0); }
+  70%     { transform: translate(-2px,1px); clip-path: inset(72% 0 4% 0); }
+}
+
+.hero .sub {
+  font-size: clamp(1rem, 2.4vw, 1.22rem);
+  color: var(--text);
+  max-width: 34ch;
+  margin: 18px 0 22px;
+}
+.hero .sub em { font-style: normal; color: var(--glitch); }
+
+.disclaim {
+  display: inline-flex;
+  gap: 10px;
+  align-items: center;
+  flex-wrap: wrap;
+  max-width: 100%;
+  padding: 10px 14px;
+  border: 1px solid var(--line);
+  border-left: 2px solid var(--gold);
+  background: var(--panel);
+  color: var(--text-dim);
+  font-size: .86em;
+  border-radius: 2px;
+}
+
+.hero-status--slim { max-width: 520px; }
+.hero-status {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1px;
+  margin-top: 30px;
+  border: 1px solid var(--line);
+  border-radius: 3px;
+  overflow: hidden;
+  background: var(--line);
+  max-width: 760px;
+}
+.hero-status div {
+  flex: 1 1 150px;
+  min-width: 0;
+  background: var(--panel);
+  padding: 12px 14px;
+}
+.hero-status dt {
+  color: var(--text-faint);
+  font-size: .76em;
+  letter-spacing: .1em;
+  margin: 0;
+}
+.hero-status dd {
+  margin: 4px 0 0;
+  font-size: 1.06em;
+  font-weight: 600;
+  color: var(--text);
+}
+.hero-status dd.ok { color: var(--glitch); }
+.hero-status dd.bad { color: var(--red); }
+.live {
+  display: inline-block;
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  background: currentColor;
+  margin-right: 7px;
+  vertical-align: 1px;
+  animation: livePulse 2.4s ease-in-out infinite;
+}
+@keyframes livePulse { 0%, 100% { opacity: .3; } 50% { opacity: 1; } }
+
+/* ============================================================
+   SECTION: 编号示例条
+   ============================================================ */
+.format {
+  margin-top: 22px;
+  padding: 16px 18px;
+  border: 1px solid var(--line);
+  border-left: 3px solid var(--glitch);
+  background: var(--panel);
+  border-radius: 3px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+.format .label {
+  color: var(--text-faint);
+  font-size: .8em;
+  letter-spacing: .1em;
+}
+.format .sample {
+  font-size: clamp(.92rem, 2vw, 1.06rem);
+  color: var(--text);
+  word-break: break-all;
+}
+.format .sample i { font-style: normal; color: var(--text-faint); padding: 0 4px; }
+
+/* ============================================================
+   SECTION: 站外分类列表
+   ============================================================ */
+.ex-list {
+  display: grid;
+  gap: 1px;
+  grid-template-columns: repeat(auto-fit, minmax(min(230px, 100%), 1fr));
+  background: var(--line);
+  border: 1px solid var(--line);
+  border-radius: 3px;
+  overflow: hidden;
+}
+.ex-item {
+  background: var(--panel);
+  padding: 16px 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  transition: background-color .2s ease, transform .2s ease;
+}
+.ex-item:hover { background: var(--panel-2); transform: translateY(-2px); }
+.ex-item .ex-code { color: var(--text-faint); font-size: .8em; letter-spacing: .12em; }
+.ex-item .ex-name { font-weight: 600; }
+.ex-item .ex-mask { color: var(--text-dim); font-size: .84em; }
+
+.warnbar {
+  margin-top: 20px;
+  padding: 14px 16px;
+  border: 1px solid rgba(217, 83, 79, .5);   /* 兜底 */
+  border: 1px solid color-mix(in srgb, var(--red) 50%, var(--line));
+  background: rgba(217, 83, 79, .08);        /* 兜底 */
+  background: color-mix(in srgb, var(--red) 8%, var(--panel));
+  border-radius: 3px;
+  color: var(--text-dim);
+  font-size: .9em;
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+}
+.warnbar svg { width: 18px; height: 18px; flex: none; color: var(--red); margin-top: 3px; }
+.warnbar b { color: var(--red); font-weight: 650; }
+
+/* ============================================================
+   SECTION: 档案卡（示例条目）
+   ============================================================ */
+.file {
+  position: relative;
+  border: 1px solid var(--line-strong);
+  border-top: 3px solid var(--glitch);
+  border-radius: 4px;
+  background: var(--panel);
+  padding: clamp(20px, 4vw, 34px);
+  box-shadow: var(--shadow);
+  overflow-wrap: break-word;
+}
+.file-head {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px 20px;
+  align-items: baseline;
+  justify-content: space-between;
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--line);
+  margin-bottom: 20px;
+}
+.file-id { font-size: clamp(1.1rem, 3vw, 1.5rem); letter-spacing: .06em; }
+.file-id small { display: block; color: var(--text-faint); font-size: .6em; letter-spacing: .2em; margin-top: 4px; }
+.stamp {
+  border: 1px solid var(--gold);
+  color: var(--gold);
+  padding: 4px 12px;
+  font-size: .78em;
+  letter-spacing: .18em;
+  border-radius: 2px;
+  transform: rotate(-1.4deg);
+  white-space: nowrap;
+}
+.file-body { display: grid; gap: 0 34px; grid-template-columns: repeat(auto-fit, minmax(min(240px, 100%), 1fr)); }
+.field {
+  display: flex;
+  gap: 12px;
+  padding: 9px 0;
+  border-bottom: 1px dashed var(--line);
+}
+.field dt {
+  flex: none;
+  width: 7.5em;
+  color: var(--text-faint);
+  font-size: .84em;
+  letter-spacing: .06em;
+  padding-top: .18em;
+}
+.field dd { margin: 0; min-width: 0; flex: 1 1 0; }
+.field-full { grid-column: 1 / -1; }
+.abstract {
+  margin-top: 20px;
+  padding: 16px 18px;
+  background: var(--bg-2);
+  border-left: 2px solid var(--teal);
+  border-radius: 2px;
+  color: var(--text-dim);
+  font-size: .95em;
+}
+.abstract b { color: var(--text); }
+
+/* ============================================================
+   SECTION: 最新收容卡片（可展开）
+   ============================================================ */
+.articles { display: grid; gap: 16px; grid-template-columns: repeat(auto-fit, minmax(min(320px, 100%), 1fr)); }
+
+.art {
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  background: var(--panel);
+  overflow: hidden;
+  transition: border-color .22s ease, transform .22s ease, box-shadow .22s ease;
+}
+.art:hover { transform: translateY(-3px); border-color: var(--glitch); box-shadow: var(--shadow); }
+.art.is-open { border-color: var(--glitch); }
+
+.art-btn {
+  width: 100%;
+  text-align: left;
+  padding: 18px 20px;
+  display: block;
+}
+.art-meta {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  align-items: center;
+  color: var(--text-faint);
+  font-size: .82em;
+  margin-bottom: 8px;
+}
+.art-name { font-size: 1.08rem; font-weight: 650; margin-bottom: 6px; }
+.art-sum { color: var(--text-dim); font-size: .92em; }
+.art-hint {
+  margin-top: 12px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--text-faint);
+  font-size: .8em;
+  letter-spacing: .08em;
+}
+.art-hint .chev {
+  width: 14px; height: 14px;
+  transition: transform .28s ease;
+  flex: none;
+}
+.art.is-open .art-hint .chev { transform: rotate(180deg); }
+.art.is-open .art-hint .t-on { display: inline; }
+.art.is-open .art-hint .t-off { display: none; }
+.art-hint .t-on { display: none; }
+
+/* 展开区：max-height 过渡，避免依赖 fr 插值 */
+.art-detail {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height .38s ease;
+  background: var(--bg-2);
+}
+.art.is-open .art-detail { max-height: 40em; }
+.art-detail-inner {
+  padding: 18px 20px 20px;
+  border-top: 1px solid var(--line);
+  font-size: .92em;
+  color: var(--text-dim);
+}
+.art-detail-inner h4 { color: var(--text); font-size: .92em; letter-spacing: .1em; margin-bottom: 6px; }
+.art-detail-inner ul { margin: 0 0 14px; padding-left: 1.2em; }
+.art-detail-inner li { margin-bottom: 5px; }
+.art-detail-inner p { margin-bottom: 14px; }
+.art-detail-inner .field { border-bottom-color: var(--line); }
+.art-detail-inner .field:last-child { border-bottom: none; }
+
+/* ============================================================
+   SECTION: 最新收容链接（着重号）
+   ============================================================ */
+.art-link {
+  color: var(--text);
+  border-bottom: 1px dashed var(--line-strong);
+  padding-bottom: 2px;
+  text-emphasis: dots var(--glitch);
+  text-emphasis-position: under;
+  transition: color .2s ease, border-color .2s ease;
+}
+.art-link:hover,
+.art-link:focus-visible {
+  color: var(--glitch);
+  border-bottom-color: var(--glitch);
+  text-decoration: none;
+}
+/* 不支持 text-emphasis 的浏览器用点状下划线兜底，保证“着重”仍可读 */
+@supports not (text-emphasis: dots) {
+  .art-link {
+    text-decoration: underline;
+    text-decoration-style: dotted;
+    text-decoration-thickness: 2px;
+    text-underline-offset: 4px;
+  }
+}
+
+/* ============================================================
+   SECTION: 阅读视图（条目正文挂载层）
+   ============================================================ */
+.reader {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  display: none;
+  flex-direction: column;
+  background: var(--bg);
+}
+.reader.is-open { display: flex; }
+.reader-bar {
+  flex: none;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  padding: 12px clamp(14px, 3vw, 30px);
+  border-bottom: 1px solid var(--line);
+  background: var(--panel);
+}
+.reader-crumb {
+  color: var(--text-dim);
+  font-size: .86em;
+  letter-spacing: .1em;
+  min-width: 0;
+}
+.reader-close {
+  margin-left: auto;
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 8px 14px;
+  border: 1px solid var(--line);
+  border-radius: 3px;
+  color: var(--text-dim);
+  font-size: .86em;
+  transition: color .2s ease, border-color .2s ease, transform .2s ease;
+}
+.reader-close:hover { color: var(--glitch); border-color: var(--glitch); transform: translateY(-1px); }
+.reader-close svg { width: 14px; height: 14px; }
+
+.reader-scroll {
+  flex: 1 1 auto;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+}
+.reader-inner {
+  max-width: 780px;
+  margin: 0 auto;
+  padding: clamp(22px, 5vw, 46px) clamp(14px, 4vw, 34px) 80px;
+}
+
+.entry[hidden] { display: none; }
+.entry-head {
+  padding-bottom: 18px;
+  margin-bottom: 24px;
+  border-bottom: 1px solid var(--line);
+}
+.entry-code {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  align-items: center;
+  color: var(--text-faint);
+  font-size: .84em;
+}
+.entry-title { font-size: clamp(1.36rem, 4.4vw, 2.05rem); margin: 12px 0 10px; }
+.entry-sum { color: var(--text-dim); margin: 0; }
+.entry-body { font-size: 1.01rem; }
+.entry-body h4 {
+  margin: 26px 0 10px;
+  font-size: .96em;
+  letter-spacing: .1em;
+  color: var(--text);
+}
+.entry-body p { margin-bottom: 1em; color: var(--text-dim); }
+
+.pending {
+  margin: 0 0 18px;
+  padding: 15px 17px;
+  border: 1px dashed var(--gold);
+  border-radius: 3px;
+  color: var(--text-dim);
+  font-size: .92em;
+}
+.pending b { color: var(--gold); font-weight: 650; }
+.slot {
+  border: 1px solid var(--line);
+  border-left: 2px solid var(--teal);
+  border-radius: 3px;
+  padding: 16px 18px;
+  background: var(--panel);
+}
+.slot .ph { color: var(--text-faint); font-size: .92em; }
+
+.entry-foot {
+  margin-top: 34px;
+  padding-top: 14px;
+  border-top: 1px dashed var(--line);
+  color: var(--text-faint);
+  font-size: .78em;
+  letter-spacing: .1em;
+}
+body.lock-scroll { overflow: hidden; }
+
+/* ============================================================
+   SECTION: 编号列表行（分类列表层复用）
+   ============================================================ */
+.index-list {
+  display: grid;
+  gap: 1px;
+  background: var(--line);
+  border: 1px solid var(--line);
+  border-radius: 3px;
+  overflow: hidden;
+}
+.idx-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 7px 14px;
+  background: var(--panel);
+  color: var(--text-dim);
+  font-size: .88rem;
+  line-height: 1.5;
+  transition: background-color .18s ease, color .18s ease;
+}
+.idx-row:hover,
+.idx-row:focus-visible {
+  background: var(--panel-2);
+  color: var(--text);
+  text-decoration: none;
+}
+.idx-row:hover .idx-name { color: var(--glitch); }
+.idx-num {
+  flex: none;
+  min-width: 5.2em;
+  color: var(--glitch);
+  font-family: ui-monospace, Menlo, Consolas, monospace;
+  font-size: .86em;
+  letter-spacing: .06em;
+}
+.idx-name {
+  flex: 1 1 auto;
+  min-width: 0;
+  color: var(--text);
+  overflow-wrap: anywhere;
+}
+.idx-state { flex: none; font-size: .78em; color: var(--text-faint); }
+.idx-state.ok { color: var(--teal); }
+.idx-cat {
+  flex: none;
+  width: 3.4em;
+  font-family: ui-monospace, Menlo, Consolas, monospace;
+  font-size: .84em;
+  color: var(--text-faint);
+}
+.idx-lvl { flex: none; display: flex; gap: 4px; }
+.index-foot {
+  margin-top: 14px;
+  color: var(--text-faint);
+  font-size: .82em;
+}
+@media (max-width: 680px) {
+  .idx-row { flex-wrap: wrap; gap: 6px 10px; padding: 9px 12px; }
+  .idx-name { flex-basis: 55%; }
+  .idx-state { display: none; }
+  .idx-cat { width: auto; }
+}
+
+/* ============================================================
+   SECTION: 子页面正文排版
+   ============================================================ */
+.kv {
+  display: grid;
+  gap: 0 26px;
+  grid-template-columns: repeat(auto-fit, minmax(min(250px, 100%), 1fr));
+  margin-top: 16px;
+}
+.entry-body blockquote {
+  margin: 0 0 1.1em;
+  padding: 12px 16px;
+  border-left: 2px solid var(--gold);
+  border-radius: 2px;
+  background: var(--panel);
+  color: var(--text);
+}
+.entry-body b, .entry-body strong { color: var(--text); font-weight: 600; }
+.art-detail-inner .meta-line {
+  margin: 0 0 8px;
+  padding: 8px 0;
+  border-bottom: 1px dashed var(--line);
+  font-size: .88em;
+}
+.art-detail-inner .meta-line span {
+  color: var(--text-faint);
+  letter-spacing: .06em;
+  margin-right: 8px;
+}
+.art-detail-inner .meta-line span:last-child { margin-left: 14px; }
+.entry-body ul, .entry-body ol {
+  margin: 0 0 1.1em;
+  padding-left: 1.5em;
+  color: var(--text-dim);
+}
+.entry-body li { margin-bottom: .45em; }
+.entry-body code {
+  font-family: ui-monospace, Menlo, Consolas, monospace;
+  font-size: .9em;
+  color: var(--glitch);
+}
+.entry-body h5 {
+  margin: 0 0 10px;
+  font-size: 1.02em;
+  letter-spacing: .04em;
+  color: var(--glitch);
+}
+.member {
+  margin: 0 0 18px;
+  padding: 14px 16px;
+  border: 1px solid var(--line);
+  border-left: 2px solid var(--blue);
+  border-radius: 3px;
+  background: var(--panel);
+}
+.member:last-of-type { margin-bottom: 4px; }
+
+/* ============================================================
+   SECTION: 分类入口与分类编号列表层
+   ============================================================ */
+.card.cat-entry { cursor: pointer; }
+.card.cat-entry::after {
+  content: "编号列表 ›";
+  display: block;
+  margin-top: 10px;
+  text-align: right;
+  font-size: .78em;
+  letter-spacing: .06em;
+  color: var(--text-faint);
+  transition: color .2s ease;
+}
+.card.cat-entry .card-desc { margin-bottom: 0; }
+.card.cat-entry:hover::after,
+.card.cat-entry:focus-visible::after { color: var(--glitch); }
+.cat-panel { display: block; }
+.cat-panel[hidden] { display: none; }
+.cat-list[hidden] { display: none; }
+.cat-head {
+  padding-bottom: 14px;
+  margin-bottom: 16px;
+  border-bottom: 1px solid var(--line);
+}
+.cat-crumb { color: var(--text-faint); font-size: .78em; letter-spacing: .14em; }
+.cat-title { font-size: clamp(1.1rem, 3vw, 1.4rem); margin: 8px 0 6px; color: var(--glitch); }
+.cat-sum { color: var(--text-dim); font-size: .92em; margin: 0 0 6px; }
+.cat-count { color: var(--text-faint); font-size: .8em; letter-spacing: .06em; margin: 0; }
+.kv .field-full { grid-column: 1 / -1; }
+.cat-empty {
+  margin: 0;
+  padding: 14px;
+  color: var(--text-faint);
+  font-size: .9em;
+  text-align: center;
+}
+
+/* ============================================================
+   SECTION: 最新收容置顶焦点区
+   ============================================================ */
+.block--featured {
+  border-top: 2px solid var(--glitch);
+  background: linear-gradient(180deg, var(--bg-2) 0%, transparent 78%);
+}
+.focus-tag {
+  border: 1px solid var(--gold);
+  color: var(--gold);
+  padding: 2px 9px;
+  border-radius: 2px;
+  font-size: .74em;
+  letter-spacing: .22em;
+}
+.block-note .em-dot {
+  font-style: normal;
+  color: var(--glitch);
+  text-emphasis: dots;
+  text-emphasis-position: under;
+}
+.art--lead {
+  grid-column: 1 / -1;
+  border-left: 3px solid var(--glitch);
+  background: var(--panel-2);
+}
+.art--lead .art-btn {
+  display: grid;
+  grid-template-columns: 148px minmax(0, 1fr);
+  gap: 10px 30px;
+  padding: clamp(20px, 3vw, 28px);
+}
+.art-side { display: flex; flex-direction: column; gap: 10px; min-width: 0; }
+.art-lead-no {
+  font-size: 1.5rem;
+  letter-spacing: .1em;
+  color: var(--glitch);
+  line-height: 1;
+}
+.art-lead-lvl { font-size: .8em; color: var(--text-dim); line-height: 2; }
+.art-lead-status {
+  align-self: flex-start;
+  border: 1px dashed var(--line-strong);
+  border-radius: 2px;
+  padding: 2px 8px;
+  font-size: .76em;
+  letter-spacing: .1em;
+  color: var(--text-faint);
+}
+.art-main { min-width: 0; }
+.art-actions {
+  margin-top: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+.art-more {
+  font-size: .8em;
+  letter-spacing: .08em;
+  color: var(--glitch);
+  border-bottom: 1px dashed var(--line-strong);
+  padding-bottom: 1px;
+  text-emphasis: none;
+}
+.art-more:hover { border-bottom-color: var(--glitch); }
+.art-new {
+  border: 1px solid var(--gold);
+  color: var(--gold);
+  border-radius: 2px;
+  padding: 0 6px;
+  font-size: .74em;
+  letter-spacing: .16em;
+}
+.art--lead .art-name { font-size: clamp(1.3rem, 3.4vw, 1.85rem); margin-bottom: 10px; }
+.art--lead .art-sum { font-size: 1rem; max-width: 62ch; }
+@media (max-width: 700px) {
+  .art--lead .art-btn { grid-template-columns: minmax(0, 1fr); }
+  .art-side { flex-direction: row; flex-wrap: wrap; align-items: center; gap: 8px 14px; }
+  .art-lead-no { font-size: 1.2rem; }
+}
+
+/* ============================================================
+   SECTION: 收容协议条款
+   ============================================================ */
+.rules {
+  counter-reset: rule;
+  display: grid;
+  gap: 1px;
+  background: var(--line);
+  border: 1px solid var(--line);
+  border-radius: 3px;
+  overflow: hidden;
+}
+.rule {
+  background: var(--panel);
+  padding: 14px 18px 14px 62px;
+  position: relative;
+  color: var(--text-dim);
+  transition: background-color .2s ease;
+}
+.rule:hover { background: var(--panel-2); }
+.rule::before {
+  counter-increment: rule;
+  content: "P-" counter(rule, decimal-leading-zero);
+  position: absolute;
+  left: 16px; top: 14px;
+  color: var(--text-faint);
+  font-size: .8em;
+  letter-spacing: .08em;
+  font-family: ui-monospace, Menlo, Consolas, monospace;
+}
+.rule b { color: var(--text); font-weight: 600; }
+.rule .lvl { color: var(--gold); }
+.rule .cx { color: var(--glitch); }
+
+/* ============================================================
+   SECTION: 关于站点
+   ============================================================ */
+.about {
+  display: grid;
+  gap: 24px;
+  grid-template-columns: repeat(auto-fit, minmax(min(300px, 100%), 1fr));
+}
+.about-col {
+  border: 1px solid var(--line);
+  border-radius: 3px;
+  padding: 20px;
+  background: var(--panel);
+  transition: border-color .22s ease, transform .22s ease;
+}
+.about-col:hover { border-color: var(--line-strong); transform: translateY(-2px); }
+.about-col h3 { font-size: 1rem; margin-bottom: 10px; color: var(--text); }
+.about-col p { color: var(--text-dim); font-size: .92em; }
+.lvl-table { width: 100%; border-collapse: collapse; font-size: .9em; }
+.lvl-table th, .lvl-table td { text-align: left; padding: 7px 6px; border-bottom: 1px dashed var(--line); }
+.lvl-table th { color: var(--text-faint); font-weight: 500; font-size: .86em; letter-spacing: .08em; }
+.lvl-table tr:last-child td { border-bottom: none; }
+.lvl-table td:first-child { white-space: nowrap; }
+
+/* ============================================================
+   SECTION: 页脚
+   ============================================================ */
+.footer {
+  position: relative;
+  z-index: 2;
+  border-top: 1px solid var(--line);
+  padding: 34px 0 44px;
+  background: var(--bg-2);
+}
+.footer-inner {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px 26px;
+  align-items: baseline;
+  justify-content: space-between;
+}
+.footer .f-name { font-weight: 650; letter-spacing: .04em; }
+.footer .f-line { color: var(--text-faint); font-size: .86em; }
+.footer .f-upd { color: var(--text-dim); font-size: .86em; }
+.footer .f-tiny {
+  width: 100%;
+  margin-top: 16px;
+  padding-top: 14px;
+  border-top: 1px dashed var(--line);
+  color: var(--text-faint);
+  font-size: .78em;
+  letter-spacing: .05em;
+}
+
+/* 回到顶部 */
+.to-top {
+  position: fixed;
+  right: 18px; bottom: 20px;
+  z-index: 40;
+  width: 42px; height: 42px;
+  display: grid; place-items: center;
+  border: 1px solid var(--line-strong);
+  border-radius: 3px;
+  background: var(--panel);
+  color: var(--text-dim);
+  opacity: 0;
+  transform: translateY(10px);
+  pointer-events: none;
+  transition: opacity .25s ease, transform .25s ease, color .2s ease;
+}
+.to-top.is-show { opacity: 1; transform: none; pointer-events: auto; }
+.to-top:hover { color: var(--glitch); border-color: var(--glitch); }
+
+/* 焦点可见性（键盘操作） */
+:focus-visible {
+  outline: 2px solid var(--glitch);
+  outline-offset: 2px;
+  border-radius: 2px;
+}
+
+@media (max-width: 560px) {
+  body { font-size: 15.5px; }
+  .field dt { width: 100%; padding-top: 0; }
+  .field { flex-direction: column; gap: 2px; }
+  .card, .file { clip-path: none; }
+}
+.art-detail-inner .meta-line .f-val { color: var(--text-dim); margin-right: 14px; }
+#artList:empty::before {
+  content: "最新收容条目读取中……";
+  display: block;
+  color: var(--text-faint);
+  font-size: .9em;
+  padding: 14px 0;
+}
+/* ============================================================
+   SECTION: 关联条目互跳
+   ============================================================ */
+.xref-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 10px;
+  font-size: .92em;
+}
+.xref {
+  text-emphasis: none;
+  color: var(--blue);
+  border-bottom: 1px dashed var(--line-strong);
+  padding-bottom: 0;
+}
+.xref:hover,
+.xref:focus-visible {
+  color: var(--glitch);
+  border-bottom-color: var(--glitch);
+}
+/* ============================================================
+   SECTION: 首页导航面板
+   ============================================================ */
+.console {
+  position: relative;
+  z-index: 2;
+  padding: clamp(28px, 5vw, 44px) 0 clamp(34px, 6vw, 54px);
+  border-bottom: 1px solid var(--line);
+  background: var(--bg-2);
+}
+.cs-top {
+  display: flex;
+  align-items: baseline;
+  gap: 14px;
+  flex-wrap: wrap;
+  margin-bottom: 18px;
+}
+.cs-title { font-size: clamp(1.18rem, 3.2vw, 1.6rem); letter-spacing: .03em; }
+.cs-sub { color: var(--text-faint); font-size: .74em; letter-spacing: .18em; }
+.cs-tabs {
+  display: grid;
+  gap: 1px;
+  grid-template-columns: repeat(auto-fit, minmax(min(160px, 100%), 1fr));
+  background: var(--line);
+  border: 1px solid var(--line);
+  border-radius: 3px;
+  overflow: hidden;
+  margin-bottom: 16px;
+}
+.cs-tab {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 11px 14px;
+  min-height: 46px;
+  background: var(--panel);
+  color: var(--text-dim);
+  text-align: left;
+  font-size: .93rem;
+  transition: background-color .18s ease, color .18s ease;
+}
+.cs-tab .code { color: var(--text-faint); font-size: .76em; letter-spacing: .1em; }
+.cs-tab:hover { background: var(--panel-2); color: var(--text); }
+.cs-tab.is-on { background: var(--panel-2); color: var(--glitch); box-shadow: inset 0 -2px 0 var(--glitch); }
+.cs-tab.is-on .code { color: var(--glitch); }
+.cs-pane[hidden] { display: none; }
+
+.cs-sub-title {
+  font-size: .95em;
+  letter-spacing: .06em;
+  color: var(--text);
+  margin: 18px 0 10px;
+}
+.cs-pane > .cs-sub-title:first-child { margin-top: 2px; }
+.rule-row { display: flex; flex-wrap: wrap; gap: 8px; }
+.rule-chip {
+  border: 1px solid var(--line);
+  border-radius: 2px;
+  padding: 6px 11px;
+  font-size: .82em;
+  color: var(--text-dim);
+  background: var(--panel);
+  text-decoration: none;
+  transition: color .16s ease, border-color .16s ease, transform .16s ease;
+}
+.rule-chip:hover { color: var(--glitch); border-color: var(--glitch); transform: translateY(-2px); text-decoration: none; }
+.rule-chip.is-plain { color: var(--text-faint); cursor: default; font-family: ui-monospace, Menlo, Consolas, monospace; }
+.rule-chip.is-plain:hover { transform: none; }
+.rule-persons {
+  margin: 0;
+  padding-left: 1.4em;
+  color: var(--text-dim);
+  font-size: .9em;
+  display: grid;
+  gap: 4px;
+}
+.cs-item {
+  border-left: 2px solid var(--teal);
+  padding: 2px 0 2px 14px;
+  margin-bottom: 14px;
+}
+.cs-item-title { font-size: .96em; margin-bottom: 4px; }
+.cs-item p { color: var(--text-dim); font-size: .94em; margin: 0; }
+.view-btn {
+  border: 1px solid var(--line);
+  border-radius: 2px;
+  padding: 6px 12px;
+  font-size: .84em;
+  color: var(--text-dim);
+  background: var(--panel);
+  min-height: 38px;
+}
+.view-btn.is-on { color: var(--glitch); border-color: var(--glitch); }
+.jump-link {
+  border: 1px dashed var(--line-strong);
+  border-radius: 2px;
+  padding: 6px 11px;
+  font-size: .82em;
+  color: var(--text-dim);
+  text-decoration: none;
+  min-height: 34px;
+}
+.jump-link:hover { color: var(--glitch); border-color: var(--glitch); }
+.cs-hint { color: var(--text-faint); font-size: .74em; letter-spacing: .06em; margin: 12px 0 0; }
+
+body.view-panel .panel-hide,
+body.view-panel .hide-panel { display: none !important; }
+@media (max-width: 560px) {
+  .cs-tab { font-size: .88rem; }
+}
+
+
+/* ============================================================
+   SECTION: 目录页（页面 + 子页面 + 列表）
+   ============================================================ */
+.cs-bar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-bottom: 10px;
+}
+.cs-barlabel { color: var(--text-faint); font-size: .74em; letter-spacing: .14em; flex: none; }
+.cs-pages, .cs-subs { display: flex; flex-wrap: wrap; gap: 6px; }
+.cs-page, .cs-sub {
+  border: 1px solid var(--line);
+  border-radius: 2px;
+  padding: 6px 11px;
+  font-size: .84em;
+  color: var(--text-dim);
+  background: var(--panel);
+  min-height: 38px;
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  transition: color .16s ease, border-color .16s ease, background-color .16s ease;
+}
+.cs-page:hover, .cs-sub:hover { color: var(--text); border-color: var(--line-strong); }
+.cs-page.is-on, .cs-sub.is-on { color: var(--bg); background: var(--glitch); border-color: var(--glitch); }
+.cs-page-code { font-size: .86em; letter-spacing: .08em; }
+.cs-page-n { font-size: .8em; color: var(--text-faint); }
+.cs-page.is-on .cs-page-n, .cs-page.is-on .cs-page-code { color: var(--bg); }
+.cs-cur { margin-left: auto; color: var(--text-faint); font-size: .76em; letter-spacing: .06em; }
+
+.cs-thead, .cs-row {
+  display: grid;
+  grid-template-columns: 8.2em minmax(0, 1fr) 3.6em 8.4em 5.2em 4.4em;
+  gap: 10px;
+  align-items: center;
+}
+.cs-thead {
+  padding: 6px 13px;
+  border: 1px solid var(--line);
+  border-bottom: none;
+  border-radius: 3px 3px 0 0;
+  background: var(--panel-2);
+  color: var(--text-faint);
+  font-size: .72em;
+  letter-spacing: .1em;
+}
+.cs-rows {
+  display: grid;
+  gap: 1px;
+  background: var(--line);
+  border: 1px solid var(--line);
+  border-radius: 0 0 3px 3px;
+  overflow: hidden;
+}
+.cs-row.idx-row {
+  display: grid;
+  grid-template-columns: 8.2em minmax(0, 1fr) 3.6em 8.4em 5.2em 4.4em;
+  gap: 10px;
+  padding: 8px 13px;
+  font-size: .85em;
+}
+.cs-row .idx-name { font-size: 1em; }
+.cs-cat { color: var(--text-faint); font-size: .84em; }
+.cs-lvl { display: flex; gap: 4px; flex-wrap: wrap; min-width: 0; }
+.cs-avg { font-size: .92em; color: var(--glitch); }
+.cs-avg.neg { color: var(--red); }
+.cs-avg.zero { color: var(--text-dim); }
+.cs-avg.none { color: var(--text-faint); }
+.cs-vc { color: var(--text-faint); font-size: .86em; text-align: right; }
+.cs-foot { color: var(--text-faint); font-size: .76em; letter-spacing: .06em; margin: 10px 0 0; }
+.cs-foot.on { color: var(--glitch); }
+.cs-foot.err { color: var(--red); }
+@media (max-width: 820px) {
+  .cs-thead { display: none; }
+  .cs-row.idx-row { grid-template-columns: 7.4em minmax(0, 1fr) auto; }
+  .cs-row .cs-cat, .cs-row .cs-lvl { display: none; }
+  .cs-avg { text-align: right; }
+}
+
+/* ============================================================
+   SECTION: 评分与评论
+   ============================================================ */
+.rate {
+  margin-top: 30px;
+  padding: 16px 18px 18px;
+  border: 1px solid var(--line);
+  border-top: 2px solid var(--blue);
+  border-radius: 3px;
+  background: var(--panel);
+}
+.rate-head { display: flex; align-items: baseline; gap: 14px; flex-wrap: wrap; margin-bottom: 12px; }
+.rate-title { font-size: .82em; letter-spacing: .12em; color: var(--text); margin: 0; }
+.rate-avg { color: var(--glitch); font-size: 1.05em; }
+.rate-avg.neg { color: var(--red); }
+.rate-avg.zero { color: var(--text-dim); }
+.rate-avg.none { color: var(--text-faint); }
+.rate-vc { color: var(--text-faint); font-size: .82em; margin-left: auto; }
+.rate-btns { display: flex; flex-wrap: wrap; gap: 8px; }
+.rate-btn {
+  flex: 1 1 96px;
+  min-height: 44px;
+  border: 1px solid var(--line-strong);
+  border-radius: 2px;
+  background: var(--panel-2);
+  color: var(--text-dim);
+  font-size: .9em;
+  letter-spacing: .06em;
+  transition: color .16s ease, border-color .16s ease, background-color .16s ease;
+}
+.rate-btn:hover { color: var(--glitch); border-color: var(--glitch); }
+.rate-btn[data-vote="gov"].is-mine { color: var(--bg); background: var(--glitch); border-color: var(--glitch); }
+.rate-btn[data-vote="dev"].is-mine { color: var(--bg); background: var(--red); border-color: var(--red); }
+.rate-btn[data-vote="mev"].is-mine { color: var(--bg); background: var(--gold); border-color: var(--gold); }
+.rate-break { color: var(--text-faint); font-size: .8em; letter-spacing: .04em; margin: 10px 0 0; }
+.rate-mine { color: var(--text-dim); font-size: .82em; margin: 6px 0 0; }
+.rate-note { color: var(--text-faint); font-size: .78em; margin: 10px 0 0; line-height: 1.6; }
+.cmt { margin-top: 16px; padding-top: 14px; border-top: 1px dashed var(--line); }
+.cmt-form { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 10px; }
+.cmt-input {
+  flex: 1 1 220px;
+  min-width: 0;
+  min-height: 44px;
+  padding: 8px 11px;
+  border: 1px solid var(--line-strong);
+  border-radius: 2px;
+  background: var(--bg-2);
+  color: var(--text);
+  font-family: inherit;
+  font-size: 16px;
+}
+.cmt-input:focus { outline: 2px solid var(--glitch); outline-offset: 1px; }
+.cmt-send {
+  flex: none;
+  min-height: 44px;
+  padding: 0 16px;
+  border: 1px solid var(--line-strong);
+  border-radius: 2px;
+  background: var(--panel-2);
+  color: var(--text-dim);
+  font-size: .9em;
+}
+.cmt-send:hover { color: var(--glitch); border-color: var(--glitch); }
+.cmt-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 1px; background: var(--line); }
+.cmt-item {
+  background: var(--panel-2);
+  padding: 9px 11px;
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  flex-wrap: wrap;
+  font-size: .9em;
+}
+.cmt-body { flex: 1 1 200px; min-width: 0; color: var(--text-dim); overflow-wrap: anywhere; }
+.cmt-meta { flex: none; color: var(--text-faint); font-size: .8em; letter-spacing: .04em; }
+.cmt-hide { flex: none; color: var(--text-faint); font-size: .76em; text-decoration: underline; }
+.cmt-hide:hover { color: var(--red); }
+.cmt-empty { color: var(--text-faint); font-size: .8em; margin: 6px 0 0; }
+.rate.busy .rate-btn, .rate.busy .cmt-send { opacity: .55; pointer-events: none; }
+</style>
+</head>
+
+<body class="vignette">
+
+<!-- SECTION: 背景纹理层 -->
+<div class="fx fx-scan" aria-hidden="true"></div>
+<div class="fx fx-stream" aria-hidden="true"></div>
+<div class="fx fx-noise" aria-hidden="true"></div>
+
+<!-- ============================================================
+     SECTION: 顶部导航栏
+     ============================================================ -->
+<header class="nav" id="nav">
+  <div class="nav-inner">
+    <a class="brand" href="#home" aria-label="Character 404 / C404 维基站 首页">
+      <span class="brand-mark" aria-hidden="true"></span>
+      <b>Character 404</b><span>/ 异常收容数据库</span>
+    </a>
+
+    <nav class="nav-links" id="navLinks" aria-label="主导航">
+      <a href="#home">首页</a>
+      <a class="hide-panel" href="#articles">最新收容</a>
+      <a class="hide-panel" href="#internal">站内分类</a>
+      <a class="hide-panel" href="#external">站外分类</a>
+      <a class="hide-panel" href="#archive">档案库</a>
+      <a class="hide-panel" href="#protocol">收容协议</a>
+      <a class="hide-panel" href="#about">关于站点</a>
+    </nav>
+
+    <div class="nav-tools">
+      <!-- 主题切换 -->
+      <button class="btn-icon" id="themeBtn" type="button"
+              aria-label="切换浅色 / 深色模式" title="切换主题">
+        <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+             stroke-width="1.6" stroke-linecap="round" aria-hidden="true">
+          <circle cx="12" cy="12" r="4.2"/>
+          <path d="M12 2.5v2.6M12 18.9v2.6M2.5 12h2.6M18.9 12h2.6M5.3 5.3l1.9 1.9M16.8 16.8l1.9 1.9M18.7 5.3l-1.9 1.9M7.2 16.8l-1.9 1.9"/>
+        </svg>
+        <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+             stroke-width="1.6" stroke-linecap="round" aria-hidden="true">
+          <path d="M20 14.5A8.5 8.5 0 1 1 9.5 4a7 7 0 0 0 10.5 10.5z"/>
+        </svg>
+      </button>
+      <!-- 移动端菜单 -->
+      <button class="btn-icon btn-menu" id="menuBtn" type="button"
+              aria-label="展开导航菜单" aria-expanded="false" aria-controls="navLinks">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
+             stroke-width="1.6" stroke-linecap="round" aria-hidden="true">
+          <path d="M4 7h16M4 12h16M4 17h16"/>
+        </svg>
+      </button>
+    </div>
+  </div>
+</header>
+
+<main>
+
+  <!-- ==========================================================
+       SECTION: 首页横幅
+       ========================================================== -->
+  <section class="hero" id="home">
+    <div class="wrap">
+      <div class="hero-frame" aria-hidden="true"></div>
+      <div class="kicker code">C404 // INTERNAL MAINTENANCE NODE // CLEARANCE ≥ 3</div>
+
+      <h1 class="glitch" data-text="Character 404">Character 404</h1>
+
+      <p class="sub">现实不是桌面，任何一次<em>右键删除</em>都可能无法撤销。</p>
+
+      <div class="disclaim">
+        <span class="pill p-gold">声明</span>
+        <span>本站为虚构异常组织维基站，所有内容均为原创虚构设定。</span>
+      </div>
+
+      <dl class="hero-status hero-status--slim">
+        <div><dt>站点状态</dt><dd class="code live-wrap" id="statWrap"><span class="live" aria-hidden="true"></span><span id="statCheck">自检中</span></dd></div>
+        <div><dt>在库条目</dt><dd class="code" id="statEntries">统计中</dd></div>
+      </dl>
+    </div>
+  </section>
+
+
+  <!-- ==========================================================
+       SECTION: 目录行 / 评分与评论 模板
+       ========================================================== -->
+  <template id="tplPageBtn">
+    <button class="cs-page" type="button"><span class="cs-page-code code"></span><span class="cs-page-name"></span><span class="cs-page-n code"></span></button>
+  </template>
+
+  <template id="tplRow">
+    <a class="idx-row cs-row" href="#">
+      <span class="idx-num"></span>
+      <span class="idx-name"></span>
+      <span class="cs-cat code"></span>
+      <span class="cs-lvl"></span>
+      <span class="cs-avg code"></span>
+      <span class="cs-vc code"></span>
+    </a>
+  </template>
+
+  <template id="tplLvlPill">
+    <span class="pill code"></span>
+  </template>
+
+  <template id="tplVote">
+    <section class="rate">
+      <div class="rate-head">
+        <h4 class="rate-title code">条目评分</h4>
+        <span class="rate-avg code">平均分 —</span>
+        <span class="rate-vc code">共 0 票</span>
+      </div>
+      <div class="rate-btns">
+        <button class="rate-btn" type="button" data-vote="gov">gov　+1</button>
+        <button class="rate-btn" type="button" data-vote="dev">dev　−1</button>
+        <button class="rate-btn" type="button" data-vote="mev">mev　0</button>
+      </div>
+      <p class="rate-break code">gov 0 · dev 0 · mev 0</p>
+      <p class="rate-mine code"></p>
+      <p class="rate-note">gov 加一分、dev 减一分、mev 不加不减但按整票计入人数；平均分 =（gov − dev）÷ 总票数，区间 −1 到 +1。评分来自访问者，不构成站内档案结论。</p>
+      <div class="cmt">
+        <h4 class="rate-title code">评论区</h4>
+        <div class="cmt-form">
+          <input class="cmt-input" type="text" maxlength="120" placeholder="留言，120 字以内">
+          <button class="cmt-send" type="button">提交</button>
+        </div>
+        <ul class="cmt-list"></ul>
+        <p class="cmt-empty code">暂无留言</p>
+      </div>
+    </section>
+  </template>
+
+  <template id="tplCmt">
+    <li class="cmt-item">
+      <span class="cmt-body"></span>
+      <span class="cmt-meta code"></span>
+      <button class="cmt-hide code" type="button" title="在本机隐藏该条">隐藏</button>
+    </li>
+  </template>
+
+  <!-- ==========================================================
+       SECTION: 导航面板（目录 / 站内规范 / 关于站点 / 切换页面）
+       ========================================================== -->
+  <section class="console" id="console">
+    <div class="wrap">
+      <div class="cs-top">
+        <h2 class="cs-title">Character 404 异常收容数据库</h2>
+        <p class="cs-sub code">NAVIGATION TERMINAL</p>
+      </div>
+
+      <div class="cs-tabs" role="tablist" aria-label="主页面入口">
+        <button class="cs-tab is-on" type="button" role="tab" aria-selected="true" aria-controls="pane-catalog" data-pane="pane-catalog"><span class="code">01</span>目录</button>
+        <button class="cs-tab" type="button" role="tab" aria-selected="false" aria-controls="pane-rules" data-pane="pane-rules"><span class="code">02</span>站内规范</button>
+        <button class="cs-tab" type="button" role="tab" aria-selected="false" aria-controls="pane-about" data-pane="pane-about"><span class="code">03</span>关于站点</button>
+        <button class="cs-tab" type="button" role="tab" aria-selected="false" aria-controls="pane-switch" data-pane="pane-switch"><span class="code">04</span>切换页面</button>
+      </div>
+
+      <div class="cs-panes">
+        <div class="cs-pane is-on" id="pane-catalog" data-pane="pane-catalog" role="tabpanel">
+          <div class="cs-bar">
+            <span class="cs-barlabel code">页面</span>
+            <div class="cs-pages" id="csPages"><!-- 由脚本生成：全部 + 各分类 --></div>
+          </div>
+          <div class="cs-bar">
+            <span class="cs-barlabel code">子页面</span>
+            <div class="cs-subs">
+              <button class="cs-sub is-on" type="button" data-sub="low">最低评分</button>
+              <button class="cs-sub" type="button" data-sub="high">最高评分</button>
+              <button class="cs-sub" type="button" data-sub="new">最近上线</button>
+            </div>
+            <span class="cs-cur code" id="csCur">全部 · 最低评分</span>
+          </div>
+          <div class="cs-thead code">
+            <span class="h-id">编号</span><span class="h-nm">名称</span><span class="h-ct">分类</span>
+            <span class="h-lv">分级</span><span class="h-av">平均分</span><span class="h-vc">票数</span>
+          </div>
+          <div class="cs-rows" id="csRows"><!-- 由脚本按当前页面与子页面填充 --></div>
+          <p class="cs-foot code" id="csStatus">共享未连接 · 评分与留言仅记录在本机</p>
+        </div>
+
+        <div class="cs-pane" id="pane-rules" role="tabpanel" hidden>
+        <h3 class="cs-sub-title">物品分类</h3>
+        <div class="rule-row">
+              <a class="rule-chip" href="#cat-obj" data-cat="obj">OBJ「物品」</a>
+              <a class="rule-chip" href="#cat-ad" data-cat="ad">AD「数据」</a>
+              <a class="rule-chip" href="#cat-spi" data-cat="spi">SPI「效应」</a>
+              <a class="rule-chip" href="#cat-sth" data-cat="sth">STH「事件」</a>
+              <a class="rule-chip" href="#cat-bug" data-cat="bug">BUG「异常」</a>
+        </div>
+        <h3 class="cs-sub-title">异常分级</h3>
+        <div class="rule-row">
+              <span class="rule-chip is-plain">rebg</span>
+              <span class="rule-chip is-plain">xebg</span>
+              <span class="rule-chip is-plain">rwbg</span>
+              <span class="rule-chip is-plain">ptbg</span>
+              <span class="rule-chip is-plain">ftbg</span>
+        </div>
+        <h3 class="cs-sub-title">威胁分级</h3>
+        <div class="rule-row">
+              <span class="rule-chip is-plain">bybug</span>
+              <span class="rule-chip is-plain">hiel</span>
+              <span class="rule-chip is-plain">mdel</span>
+              <span class="rule-chip is-plain">sael</span>
+              <span class="rule-chip is-plain">sfel</span>
+              <span class="rule-chip is-plain">usel</span>
+        </div>
+        <h3 class="cs-sub-title">站内人员</h3>
+        <ol class="rule-persons">
+          <li>1级实习生</li>
+          <li>2级测试员</li>
+          <li>3级开发工程师</li>
+          <li>4级高级程序员</li>
+          <li>5级区域管理员</li>
+          <li>6级系统架构师</li>
+        </ol>
+        </div>
+
+        <div class="cs-pane" id="pane-about" role="tabpanel" hidden>
+        <div class="cs-item"><h3 class="cs-item-title">我们是谁</h3>
+          <p>Character 404 是一个以编程、数据收容与现实调试为核心的异常组织。</p></div>
+        <div class="cs-item"><h3 class="cs-item-title">站点目标</h3>
+          <p>调试现实，修补漏洞，防止异常数据溢出到正常世界。</p></div>
+        <div class="cs-item"><h3 class="cs-item-title">声明</h3>
+          <p>本页面为虚构异常收容设定站点，所有内容均为原创世界观创作。</p></div>
+        </div>
+
+        <div class="cs-pane" id="pane-switch" role="tabpanel" hidden>
+          <h3 class="cs-sub-title">视图</h3>
+          <div class="rule-row">
+            <button class="view-btn is-on" type="button" data-view="panel">导航面板视图</button>
+            <button class="view-btn" type="button" data-view="full">完整站点视图</button>
+          </div>
+          <h3 class="cs-sub-title">页面跳转</h3>
+          <div class="rule-row">
+              <a class="jump-link" href="#hero">首页横幅</a>
+              <a class="jump-link" href="#articles">最新收容</a>
+              <a class="jump-link" href="#internal">站内分类</a>
+              <a class="jump-link" href="#external">站外分类</a>
+              <a class="jump-link" href="#archive">档案库</a>
+              <a class="jump-link" href="#protocol">收容协议</a>
+              <a class="jump-link" href="#about">关于站点</a>
+          </div>
+          <p class="cs-hint code">面板视图仅隐藏区块，不改动任何条目内容</p>
+          <h3 class="cs-sub-title">共享评分连接</h3>
+          <div class="cmt-form">
+            <input class="cmt-input" type="text" id="pantryId" placeholder="填入 Pantry ID 以启用共享评分（留空则仅本机）">
+            <button class="cmt-send" type="button" id="shareSave">保存</button>
+            <button class="cmt-send" type="button" id="shareTest">测试连接</button>
+          </div>
+          <p class="cs-hint code" id="shareStatus">未配置 · 当前仅本机记录</p>
+          <p class="cs-hint">评分与留言写入同一个仅追加日志；任何人都可写入，界面不做防刷与鉴权。</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==========================================================
+       SECTION: 最新收容卡片模板（由脚本按接入序号填充）
+       ========================================================== -->
+  <template id="tplLead">
+    <article class="art art--lead">
+      <button class="art-btn" type="button">
+        <span class="art-side">
+          <span class="art-lead-no code f-no"></span>
+          <span class="pill p-cyan code f-cat"></span>
+          <span class="art-lead-lvl">附加 Bug <span class="f-bug"></span><br>常规威胁 <span class="f-thr"></span></span>
+          <span class="art-lead-status code f-status"></span>
+        </span>
+        <span class="art-main">
+          <span class="art-meta"><span class="code f-code"></span><span class="art-new code">NEW</span></span>
+          <h3 class="art-name"><a class="art-link f-name" href="#"></a></h3>
+          <p class="art-sum f-sum"></p>
+          <span class="art-actions"><span class="art-hint"><span class="t-off">展开详情</span><span class="t-on">收起详情</span><svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></span><a class="art-link art-more code f-name" href="#">阅读全文 ›</a></span>
+        </span>
+      </button>
+          <div class="art-detail">
+            <div class="art-detail-inner">
+              <p class="f-brief"></p>
+              <p class="meta-line"><span class="f-loc-label"></span><span class="f-val f-loc"></span><span class="f-status-label">当前状态</span><span class="f-val f-status"></span></p>
+              <p class="code" style="color:var(--text-faint)">原文正文已完整接入 · <span class="f-seq"></span></p>
+            </div>
+          </div>
+    </article>
+  </template>
+
+  <template id="tplCard">
+    <article class="art">
+      <button class="art-btn" type="button">
+        <span class="art-meta">
+          <span class="code f-code"></span>
+          <span class="pill p-cyan code f-cat"></span>
+          <span class="f-bug"></span><span class="f-thr"></span>
+          <span class="art-new code">NEW</span>
+        </span>
+        <h3 class="art-name"><a class="art-link f-name" href="#"></a></h3>
+        <p class="art-sum f-sum"></p>
+        <span class="art-actions"><span class="art-hint"><span class="t-off">展开详情</span><span class="t-on">收起详情</span><svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></span><a class="art-link art-more code f-name" href="#">阅读全文 ›</a></span>
+      </button>
+          <div class="art-detail">
+            <div class="art-detail-inner">
+              <p class="f-brief"></p>
+              <p class="meta-line"><span class="f-loc-label"></span><span class="f-val f-loc"></span><span class="f-status-label">当前状态</span><span class="f-val f-status"></span></p>
+              <p class="code" style="color:var(--text-faint)">原文正文已完整接入 · <span class="f-seq"></span></p>
+            </div>
+          </div>
+    </article>
+  </template>
+
+  <!-- ==========================================================
+       SECTION: 最新收容（焦点区，接通原文正文）
+       ========================================================== -->
+  <section class="block block--featured panel-hide" id="articles">
+    <div class="wrap">
+      <div class="block-head">
+        <div class="block-title">
+          <span class="focus-tag code">LATEST</span>
+          <h2>最新收容</h2>
+          <span class="idx code">01</span>
+        </div>
+      </div>
+
+      <div class="articles" id="artList">
+        <!-- 由脚本按 data-seq 倒序填充最新 3 条 -->
+      </div>
+      <noscript><p class="index-foot">启用 JavaScript 后，此处自动列出最新收容的三条条目。</p></noscript>
+    </div>
+  </section>
+
+
+  <!-- ==========================================================
+       SECTION: 站内分类
+       ========================================================== -->
+  <section class="block panel-hide" id="internal">
+    <div class="wrap">
+      <div class="block-head">
+        <div class="block-title">
+          <span class="idx code">02</span>
+          <h2>站内分类</h2>
+        </div>
+        <p class="block-note">站内分类用于收容与检索，禁止在公开环境中出现；点击分类卡可查看该分类下的编号列表。</p>
+      </div>
+
+      <p class="lede">C404 采用七类主分类对异常条目进行归口。每个条目必须至少拥有一个主分类；
+        跨类条目另行标注副分类，副分类不参与编号生成。</p>
+
+      <div class="grid">
+        <!-- 卡片：obj -->
+        <article class="card cat-entry" tabindex="0" role="link" data-cat="obj" aria-label="查看 obj 分类编号列表">
+          <div class="card-code"><span class="abbr code">obj</span><span class="code">C404-OBJ-###</span></div>
+          <h3 class="card-title">物品</h3>
+          <p class="card-desc">具备固定形态或稳定数据形态的异常对象。</p>
+        </article>
+
+        <!-- 卡片：ad -->
+        <article class="card cat-entry" tabindex="0" role="link" data-cat="ad" aria-label="查看 ad 分类编号列表">
+          <div class="card-code"><span class="abbr code">ad</span><span class="code">C404-AD-###</span></div>
+          <h3 class="card-title">数据</h3>
+
+          <p class="card-desc">以数据流、代码片段、协议残留或信息结构形式存在的异常。</p>
+        </article>
+
+        <!-- 卡片：ent -->
+        <article class="card cat-entry" tabindex="0" role="link" data-cat="ent" aria-label="查看 ent 分类编号列表">
+          <div class="card-code"><span class="abbr code">ent</span><span class="code">C404-ENT-###</span></div>
+
+          <h3 class="card-title">实体</h3>
+          <p class="card-desc">具备独立存在、行动能力或类生命特征的异常对象。</p>
+        </article>
+
+        <!-- 卡片：wp -->
+        <article class="card cat-entry" tabindex="0" role="link" data-cat="wp" aria-label="查看 wp 分类编号列表">
+          <div class="card-code"><span class="abbr code">wp</span><span class="code">C404-WP-###</span></div>
+          <h3 class="card-title">战斗单位</h3>
+          <p class="card-desc">由 C404 制造、部署或控制的武装单位、终端载体或异常武装系统。</p>
+        </article>
+
+        <!-- 卡片：bug -->
+        <article class="card cat-entry" tabindex="0" role="link" data-cat="bug" aria-label="查看 bug 分类编号列表">
+          <div class="card-code"><span class="abbr code">bug</span><span class="code">C404-BUG-###</span></div>
+          <h3 class="card-title">异常</h3>
+          <p class="card-desc">对现实结构、系统底层或收容体系构成根本性威胁的核心异常。</p>
+        </article>
+
+        <!-- 卡片：spi -->
+        <article class="card cat-entry" tabindex="0" role="link" data-cat="spi" aria-label="查看 spi 分类编号列表">
+          <div class="card-code"><span class="abbr code">spi</span><span class="code">C404-SPI-###</span></div>
+          <h3 class="card-title">效应</h3>
+          <p class="card-desc">不具备固定对象形态，但会在特定条件、区域或系统中持续发生的异常现象。</p>
+        </article>
+
+        <!-- 卡片：sth -->
+        <article class="card cat-entry" tabindex="0" role="link" data-cat="sth" aria-label="查看 sth 分类编号列表">
+
+          <div class="card-code"><span class="abbr code">sth</span><span class="code">C404-STH-###</span></div>
+          <h3 class="card-title">事件</h3>
+          <p class="card-desc">具有明确起始、过程和结果的异常事件记录。</p>
+        </article>
+      </div>
+
+      <div class="format">
+        <span class="label">编号示例格式</span>
+        <span class="sample code">C404-AD-001<i>|</i><span class="pill p-red">rebg</span>&thinsp;/&thinsp;<span class="pill p-gold">hiel</span><i>|</i>界面覆写者</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==========================================================
+       SECTION: 站外分类
+       ========================================================== -->
+  <section class="block panel-hide" id="external">
+    <div class="wrap">
+      <div class="block-head">
+        <div class="block-title">
+          <span class="idx code">03</span>
+          <h2>站外分类</h2>
+        </div>
+        <p class="block-note">对外伪装口径，用于向外部协作方交付脱敏索引。</p>
+      </div>
+
+      <p class="lede">站外分类与站内分类一一对应，但术语、编号段位与描述口径均经过替换处理。
+        同一对象可同时拥有站内编号与站外编号，两者不得在公开环境中同时出现。</p>
+
+      <div class="ex-list">
+        <div class="ex-item"><span class="ex-code code">EX-OBJ</span><span class="ex-name">外部物品</span><span class="ex-mask">对外口径：常规仓储样本</span></div>
+        <div class="ex-item"><span class="ex-code code">EX-DAT</span><span class="ex-name">外部数据</span><span class="ex-mask">对外口径：待清洗数据集</span></div>
+        <div class="ex-item"><span class="ex-code code">EX-ENT</span><span class="ex-name">外部实体</span><span class="ex-mask">对外口径：外部访客记录</span></div>
+        <div class="ex-item"><span class="ex-code code">EX-WP</span><span class="ex-name">外部武装</span><span class="ex-mask">对外口径：外包安保编制</span></div>
+        <div class="ex-item"><span class="ex-code code">EX-BUG</span><span class="ex-name">外部高危异常</span><span class="ex-mask">对外口径：系统性技术故障</span></div>
+        <div class="ex-item"><span class="ex-code code">EX-SPI</span><span class="ex-name">外部效应</span><span class="ex-mask">对外口径：区域性环境问题</span></div>
+        <div class="ex-item"><span class="ex-code code">EX-STH</span><span class="ex-name">外部事件</span><span class="ex-mask">对外口径：历史事故报告</span></div>
+      </div>
+
+      <div class="warnbar">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"
+             stroke-linecap="round" aria-hidden="true">
+          <path d="M12 3.6 2.6 20h18.8L12 3.6z"/><path d="M12 9.5v5"/><path d="M12 17.4h.01"/>
+        </svg>
+        <span><b>伪装纪律：</b>站外分类用于对外伪装，不得直接暴露站内收容等级、异常术语或真实职能。</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==========================================================
+       SECTION: 档案库（示例条目）
+       ========================================================== -->
+  <section class="block panel-hide" id="archive">
+    <div class="wrap">
+      <div class="block-head">
+        <div class="block-title">
+          <span class="idx code">04</span>
+          <h2>档案库</h2>
+        </div>
+        <p class="block-note">示例条目，字段结构即为维基站统一模板。</p>
+      </div>
+
+      <article class="file">
+        <div class="file-head">
+          <div class="file-id code">C404-OBJ-883
+            <small>超现实鼠标 / SURREAL MOUSE</small>
+          </div>
+          <span class="stamp code">机密 · 站内</span>
+        </div>
+
+        <div class="file-body">
+          <dl>
+            <div class="field"><dt>分类</dt><dd><span class="pill p-teal code">obj 物品</span></dd></div>
+            <div class="field"><dt>附加 Bug 分级</dt><dd><span class="pill p-red code">rebg</span></dd></div>
+          </dl>
+          <dl>
+            <div class="field"><dt>常规威胁分级</dt><dd><span class="pill p-gold code">hiel</span></dd></div>
+            <div class="field"><dt>状态</dt><dd><span class="pill p-cyan">已收容</span></dd></div>
+          </dl>
+          <div class="field field-full">
+            <dt>收容位置</dt>
+            <dd>代码基站 Alpha-01，物理隔离柜 P-883</dd>
+          </div>
+          <div class="field field-full">
+            <dt>关联事件</dt>
+            <dd>C404-STH-0883「大规模界面攻击事件」</dd>
+          </div>
+        </div>
+
+        <div class="abstract">
+          <p><b>简介：</b>一只普通有线鼠标，在一次由异常数据流引发的大规模网站攻击中，
+            获得了在现实层执行界面操作的能力，包括重命名、删除、复制粘贴、剪切和属性修改。
+            收容过程中曾造成现实界面混乱与人员身份记录异常。</p>
+        </div>
+      </article>
+    </div>
+  </section>
+
+
+
+
+  <!-- ==========================================================
+       SECTION: 收容协议
+
+       ========================================================== -->
+  <section class="block panel-hide" id="protocol">
+    <div class="wrap">
+      <div class="block-head">
+
+        <div class="block-title">
+          <span class="idx code">05</span>
+          <h2>收容协议</h2>
+        </div>
+        <p class="block-note">通用归口规则，优先级高于个人编辑习惯。</p>
+      </div>
+
+      <div class="rules">
+        <div class="rule">每个条目必须<b>至少拥有一个主分类</b>。</div>
+        <div class="rule">若条目同时符合多个分类，可标注<b>主分类与副分类</b>。</div>
+        <div class="rule"><span class="cx code">bug</span> 类仅用于<b>最高危或最难以定义</b>的核心异常。</div>
+        <div class="rule"><span class="cx code">wp</span> 类仅收录与战斗、武装、特遣或<b>终端载体</b>直接相关的单位。</div>
+        <div class="rule"><span class="cx code">sth</span> 类用于<b>记录事件过程</b>，不用于收容对象本身。</div>
+        <div class="rule">站外分类<b>不得直接引用</b>站内分级。</div>
+        <div class="rule"><span class="code">EX-BUG</span> 类条目对外发布前必须经 <span class="lvl">5级员工</span> 审核。</div>
+        <div class="rule">同一对象可同时拥有站内编号与站外编号，但<b>不得在公开环境中同时出现</b>。</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==========================================================
+       SECTION: 关于站点
+       ========================================================== -->
+  <section class="block panel-hide" id="about">
+    <div class="wrap">
+      <div class="block-head">
+        <div class="block-title">
+          <span class="idx code">06</span>
+          <h2>关于站点</h2>
+        </div>
+        <p class="block-note">本站全部内容为虚构创作，不对应任何真实机构。</p>
+      </div>
+
+      <div class="about">
+        <div class="about-col">
+          <h3>本站是什么</h3>
+          <p>Character 404 / C404 维基站是一套面向创作的虚构世界观资料站，
+            用来演示一个异常组织如何给「现实层异常」建档、分级、收容与对外伪装。</p>
+        </div>
+        <div class="about-col">
+          <h3>编号与分级怎么读</h3>
+          <p>编号格式为 <span class="code">C404-分类-序号</span>；
+            分级分为两个维度：附加 <span class="code">bug</span> 分级描述底层风险，
+            常规威胁分级描述接触成本。两者独立，不可互相推算。</p>
+        </div>
+        <div class="about-col">
+          <h3>查阅权限（虚构）</h3>
+          <table class="lvl-table">
+            <thead><tr><th>等级</th><th>可查阅范围</th></tr></thead>
+            <tbody>
+              <tr><td class="code">1–2级</td><td>站外分类索引</td></tr>
+              <tr><td class="code">3–4级</td><td>站内分类与已收容条目</td></tr>
+              <tr><td class="code">5级</td><td><span class="pill p-red">bug</span> 类与发布审核</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==========================================================
+       SECTION: 子页面（条目正文挂载层，按编号接入原文）
+       ========================================================== -->
+  <div class="reader" id="reader" role="dialog" aria-modal="true" aria-label="条目正文阅读视图">
+    <div class="reader-bar">
+      <span class="reader-crumb code" id="readerCrumb">C404 // READER</span>
+      <button class="reader-close" id="readerClose" type="button">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
+             stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg>
+        <span id="backLabel">← 返回最新收容</span>
+      </button>
+    </div>
+    <div class="reader-scroll" id="readerScroll">
+      <div class="reader-inner">
+
+        <!-- PANEL: 分类编号列表（中间层） -->
+        <div class="cat-panel" id="catPanel" hidden>
+        <div class="cat-list" id="cat-obj" data-cat="obj" hidden>
+          <header class="cat-head">
+            <div class="cat-crumb code">站内分类 / obj</div>
+            <h3 class="cat-title">obj 物品 · 编号列表</h3>
+            <p class="cat-sum">具备固定形态或稳定数据形态的异常对象。</p>
+            <p class="cat-count code">登记条目 2 条</p>
+          </header>
+          <div class="index-list">
+          <a class="idx-row" href="#e-obj883" data-entry="e-obj883" data-cat="obj" data-label="C404-OBJ-883 / 「超现实鼠标」">
+            <span class="idx-num">OBJ-883</span>
+            <span class="idx-name">超现实鼠标</span>
+            <span class="idx-state ok">已收容</span>
+            <span class="idx-lvl"><span class="pill p-red code">rebg</span><span class="pill p-gold code">hiel</span></span>
+          </a>
+          <a class="idx-row" href="#e-obj1140" data-entry="e-obj1140" data-cat="obj" data-label="C404-OBJ-1140 / 「感染字符」">
+            <span class="idx-num">OBJ-1140</span>
+            <span class="idx-name">感染字符</span>
+            <span class="idx-state ok">部分收容</span>
+            <span class="idx-lvl"><span class="pill p-gold code">xebg</span><span class="pill p-gold code">hiel</span></span>
+          </a>
+          </div>
+        </div>
+
+        <div class="cat-list" id="cat-ad" data-cat="ad" hidden>
+          <header class="cat-head">
+            <div class="cat-crumb code">站内分类 / ad</div>
+            <h3 class="cat-title">ad 数据 · 编号列表</h3>
+            <p class="cat-sum">以数据流、代码片段、协议残留或信息结构形式存在的异常。</p>
+            <p class="cat-count code">登记条目 8 条</p>
+          </header>
+          <div class="index-list">
+          <a class="idx-row" href="#e-ad001" data-entry="e-ad001" data-cat="ad" data-label="C404-AD-001 / 「界面覆写者」">
+            <span class="idx-num">AD-001</span>
+            <span class="idx-name">界面覆写者</span>
+            <span class="idx-state ok">已收容</span>
+            <span class="idx-lvl"><span class="pill p-red code">rebg</span><span class="pill p-gold code">hiel</span></span>
+          </a>
+          <a class="idx-row" href="#e-ad002" data-entry="e-ad002" data-cat="ad" data-label="C404-AD-002 / 「沉默协议」">
+            <span class="idx-num">AD-002</span>
+            <span class="idx-name">沉默协议</span>
+            <span class="idx-state ok">已收容</span>
+            <span class="idx-lvl"><span class="pill p-gold code">xebg</span><span class="pill p-blue code">mdel</span></span>
+          </a>
+          <a class="idx-row" href="#e-ad003" data-entry="e-ad003" data-cat="ad" data-label="C404-AD-003 / 「递归自述」">
+            <span class="idx-num">AD-003</span>
+            <span class="idx-name">递归自述</span>
+            <span class="idx-state ok">已收容</span>
+            <span class="idx-lvl"><span class="pill p-red code">rebg</span><span class="pill p-teal code">sael</span></span>
+          </a>
+          <a class="idx-row" href="#e-ad004" data-entry="e-ad004" data-cat="ad" data-label="C404-AD-004 / 「空脑袋」">
+            <span class="idx-num">AD-004</span>
+            <span class="idx-name">空脑袋</span>
+            <span class="idx-state ok">已收容</span>
+            <span class="idx-lvl"><span class="pill p-gold code">xebg</span><span class="pill p-blue code">mdel</span></span>
+          </a>
+          <a class="idx-row" href="#e-ad005" data-entry="e-ad005" data-cat="ad" data-label="C404-AD-005 / 「唯物主义」">
+            <span class="idx-num">AD-005</span>
+            <span class="idx-name">唯物主义</span>
+            <span class="idx-state ok">已收容</span>
+            <span class="idx-lvl"><span class="pill p-red code">rebg</span><span class="pill p-blue code">mdel</span></span>
+          </a>
+          <a class="idx-row" href="#e-ad006" data-entry="e-ad006" data-cat="ad" data-label="C404-AD-006 / 「或许无人知」">
+            <span class="idx-num">AD-006</span>
+            <span class="idx-name">或许无人知</span>
+            <span class="idx-state ok">活跃</span>
+            <span class="idx-lvl"><span class="pill p-gold code">xebg</span><span class="pill p-teal code">sael</span></span>
+          </a>
+          <a class="idx-row" href="#e-ad008" data-entry="e-ad008" data-cat="ad" data-label="C404-AD-008 / 「逆时校验核」">
+            <span class="idx-num">AD-008</span>
+            <span class="idx-name">逆时校验核</span>
+            <span class="idx-state ok">封存</span>
+            <span class="idx-lvl"><span class="pill p-gold code">xebg</span><span class="pill p-gold code">hiel</span></span>
+          </a>
+          <a class="idx-row" href="#e-ad1140" data-entry="e-ad1140" data-cat="ad" data-label="C404-AD-1140 / 「智能体 XIER」">
+            <span class="idx-num">AD-1140</span>
+            <span class="idx-name">智能体 XIER</span>
+            <span class="idx-state ok">已隔离</span>
+            <span class="idx-lvl"><span class="pill p-gold code">xebg</span><span class="pill p-gold code">hiel</span></span>
+          </a>
+          </div>
+        </div>
+
+        <div class="cat-list" id="cat-ent" data-cat="ent" hidden>
+          <header class="cat-head">
+            <div class="cat-crumb code">站内分类 / ent</div>
+            <h3 class="cat-title">ent 实体 · 编号列表</h3>
+            <p class="cat-sum">具备独立存在、行动能力或类生命特征的异常对象。</p>
+            <p class="cat-count code">登记条目 2 条</p>
+          </header>
+          <div class="index-list">
+          <a class="idx-row" href="#e-ent996" data-entry="e-ent996" data-cat="ent" data-label="C404-ENT-996 / 「Missing No.?」">
+            <span class="idx-num">ENT-996</span>
+            <span class="idx-name">Missing No.?</span>
+            <span class="idx-state ok">已收容</span>
+            <span class="idx-lvl"><span class="pill p-gold code">xebg</span><span class="pill p-gold code">hiel</span></span>
+          </a>
+          <a class="idx-row" href="#e-ent996a" data-entry="e-ent996a" data-cat="ent" data-label="C404-ENT-996-A / 「Normal Member.?」">
+            <span class="idx-num">ENT-996-A</span>
+            <span class="idx-name">Normal Member.?</span>
+            <span class="idx-state ok">已收容</span>
+            <span class="idx-lvl"><span class="pill p-gold code">xebg</span><span class="pill p-gold code">hiel</span></span>
+          </a>
+          </div>
+        </div>
+
+        <div class="cat-list" id="cat-wp" data-cat="wp" hidden>
+          <header class="cat-head">
+            <div class="cat-crumb code">站内分类 / wp</div>
+            <h3 class="cat-title">wp 战斗单位 · 编号列表</h3>
+            <p class="cat-sum">由 C404 制造、部署或控制的武装单位、终端载体或异常武装系统。</p>
+            <p class="cat-count code">登记条目 1 条</p>
+          </header>
+          <div class="index-list">
+          <a class="idx-row" href="#e-wp224" data-entry="e-wp224" data-cat="wp" data-label="C404-WP-224 / 「洗刷者组织」">
+            <span class="idx-num">WP-224</span>
+            <span class="idx-name">洗刷者组织</span>
+            <span class="idx-state ok">部署中</span>
+            <span class="idx-lvl"><span class="pill p-red code">rebg</span><span class="pill p-gold code">hiel</span></span>
+          </a>
+          </div>
+        </div>
+
+        <div class="cat-list" id="cat-bug" data-cat="bug" hidden>
+          <header class="cat-head">
+            <div class="cat-crumb code">站内分类 / bug</div>
+            <h3 class="cat-title">bug 异常 · 编号列表</h3>
+            <p class="cat-sum">对现实结构、系统底层或收容体系构成根本性威胁的核心异常。</p>
+            <p class="cat-count code">登记条目 1 条</p>
+          </header>
+          <div class="index-list">
+          <a class="idx-row" href="#e-bug1140" data-entry="e-bug1140" data-cat="bug" data-label="C404-BUG-1140 / 「希尔定值域」">
+            <span class="idx-num">BUG-1140</span>
+            <span class="idx-name">希尔定值域</span>
+            <span class="idx-state ok">压制收容</span>
+            <span class="idx-lvl"><span class="pill p-red code">bybg</span><span class="pill p-gold code">hiel</span></span>
+          </a>
+          </div>
+        </div>
+
+        <div class="cat-list" id="cat-spi" data-cat="spi" hidden>
+          <header class="cat-head">
+            <div class="cat-crumb code">站内分类 / spi</div>
+            <h3 class="cat-title">spi 效应 · 编号列表</h3>
+            <p class="cat-sum">不具备固定对象形态，但会在特定条件、区域或系统中持续发生的异常现象。</p>
+            <p class="cat-count code">登记条目 4 条</p>
+          </header>
+          <div class="index-list">
+          <a class="idx-row" href="#e-spi001" data-entry="e-spi001" data-cat="spi" data-label="C404-SPI-001 / 「此路向死，或向远方」">
+            <span class="idx-num">SPI-001</span>
+            <span class="idx-name">此路向死，或向远方</span>
+            <span class="idx-state ok">持续活跃</span>
+            <span class="idx-lvl"><span class="pill p-gold code">xebg</span><span class="pill p-teal code">sael</span></span>
+          </a>
+          <a class="idx-row" href="#e-spi002" data-entry="e-spi002" data-cat="spi" data-label="C404-SPI-002 / 「炉火纯青时」">
+            <span class="idx-num">SPI-002</span>
+            <span class="idx-name">炉火纯青时</span>
+            <span class="idx-state ok">间歇性活跃</span>
+            <span class="idx-lvl"><span class="pill p-red code">rebg</span><span class="pill p-blue code">mdel</span></span>
+          </a>
+          <a class="idx-row" href="#e-spi003" data-entry="e-spi003" data-cat="spi" data-label="C404-SPI-003 / 「忧郁蓝调」">
+            <span class="idx-num">SPI-003</span>
+            <span class="idx-name">忧郁蓝调</span>
+            <span class="idx-state ok">持续活跃</span>
+            <span class="idx-lvl"><span class="pill p-gold code">xebg</span><span class="pill p-teal code">sael</span></span>
+          </a>
+          <a class="idx-row" href="#e-spi1140" data-entry="e-spi1140" data-cat="spi" data-label="C404-SPI-1140 / 「进制天穹」">
+            <span class="idx-num">SPI-1140</span>
+            <span class="idx-name">进制天穹</span>
+            <span class="idx-state ok">持续存在</span>
+            <span class="idx-lvl"><span class="pill p-gold code">xebg</span><span class="pill p-gold code">hiel</span></span>
+          </a>
+          </div>
+        </div>
+
+        <div class="cat-list" id="cat-sth" data-cat="sth" hidden>
+          <header class="cat-head">
+            <div class="cat-crumb code">站内分类 / sth</div>
+            <h3 class="cat-title">sth 事件 · 编号列表</h3>
+            <p class="cat-sum">具有明确起始、过程和结果的异常事件记录。</p>
+            <p class="cat-count code">登记条目 5 条</p>
+          </header>
+          <div class="index-list">
+          <a class="idx-row" href="#e-sth0012" data-entry="e-sth0012" data-cat="sth" data-label="C404-STH-0012 / 「灰屏走廊事件」">
+            <span class="idx-num">STH-0012</span>
+            <span class="idx-name">灰屏走廊事件</span>
+            <span class="idx-state ok">1993-04-22</span>
+            <span class="idx-lvl"><span class="pill p-red code">rebg</span><span class="pill p-teal code">sael</span></span>
+          </a>
+          <a class="idx-row" href="#e-sth0037" data-entry="e-sth0037" data-cat="sth" data-label="C404-STH-0037 / 「递归点名事件」">
+            <span class="idx-num">STH-0037</span>
+            <span class="idx-name">递归点名事件</span>
+            <span class="idx-state ok">2001-11-08</span>
+            <span class="idx-lvl"><span class="pill p-red code">rebg</span><span class="pill p-teal code">sael</span></span>
+          </a>
+          <a class="idx-row" href="#e-sth0054" data-entry="e-sth0054" data-cat="sth" data-label="C404-STH-0054 / 「静默广播事件」">
+            <span class="idx-num">STH-0054</span>
+            <span class="idx-name">静默广播事件</span>
+            <span class="idx-state ok">2008-07-13</span>
+            <span class="idx-lvl"><span class="pill p-gold code">xebg</span><span class="pill p-gold code">hiel</span></span>
+          </a>
+          <a class="idx-row" href="#e-sth0071" data-entry="e-sth0071" data-cat="sth" data-label="C404-STH-0071 / 「未命名房间事件」">
+            <span class="idx-num">STH-0071</span>
+            <span class="idx-name">未命名房间事件</span>
+            <span class="idx-state ok">2017-02-28</span>
+            <span class="idx-lvl"><span class="pill p-red code">rebg</span><span class="pill p-teal code">sael</span></span>
+          </a>
+          <a class="idx-row" href="#e-sth1140" data-entry="e-sth1140" data-cat="sth" data-label="C404-STH-1140 / 「XIER 演示事故」">
+            <span class="idx-num">STH-1140</span>
+            <span class="idx-name">XIER 演示事故</span>
+            <span class="idx-state ok">2019-08-04</span>
+            <span class="idx-lvl"><span class="pill p-gold code">xebg</span><span class="pill p-gold code">hiel</span></span>
+          </a>
+          </div>
+        </div>
+        </div>
+
+        <!-- ENTRY: C404-AD-001 -->
+        <article class="entry" id="e-ad001" data-seq="1" data-intro="AD-001 是一段具备界面覆写能力的异常数据流。" data-brief="AD-001 的异常性质表现为界面接管。" hidden>
+          <header class="entry-head">
+            <div class="entry-code">
+              <span class="code">C404-AD-001</span>
+              <span class="pill p-cyan code">ad 数据</span>
+              <span>常规威胁 <span class="pill p-gold code">hiel</span></span>&nbsp;<span>附加 Bug <span class="pill p-red code">rebg</span></span>
+            </div>
+            <h3 class="entry-title">「界面覆写者」</h3>
+            <dl class="kv">
+              <div class="field"><dt>分类</dt><dd>ad（数据）</dd></div>
+              <div class="field"><dt>附加 Bug 分级</dt><dd><span class="pill p-red code">rebg</span></dd></div>
+              <div class="field"><dt>常规威胁分级</dt><dd><span class="pill p-gold code">hiel</span></dd></div>
+              <div class="field"><dt>当前状态</dt><dd>已收容</dd></div>
+              <div class="field"><dt>收容位置</dt><dd>代码基站 Alpha-01，数据隔离区 D-01</dd></div>
+            </dl>
+          </header>
+          <div class="entry-body">
+
+      <p>AD-001 是一段具备界面覆写能力的异常数据流。其名称来源于首次捕获时系统返回的自检提示：</p>
+      <blockquote><b>“界面已接管，等待输入。”</b></blockquote>
+      <p>该数据流最初出现在一次全球范围的网站攻击事件中。当时，多个异常站点同时出现相同的界面错位：按钮位置改变、权限标签消失、管理员账户被替换为未知标识。初步调查认为这是一次协同攻击，但随后发现受影响站点之间并无通信记录，所有异常修改均“自发”出现。</p>
+      <p>AD-001 的异常性质表现为<b>界面接管</b>。它会寻找系统中的显示层、权限标签、按钮行为和交互逻辑，并在不破坏底层数据的前提下修改用户所见内容。与常规恶意代码不同，AD-001 不窃取数据，也不直接删除文件；它更倾向于改变“系统如何被理解”。</p>
+      <p>在收容过程中，AD-001 曾导致三座临时服务器的权限显示全部错位：普通维护员被系统显示为 5级员工，而真实高权限账户则被标记为“访客”。若该效应扩散至现实层权限系统，可能造成收容指令被错误执行。</p>
+      <p>AD-001 目前收容于独立数据隔离环境中。所有测试必须通过离线终端进行，禁止连接任何具备显示层或权限管理功能的系统。</p>
+
+          </div>
+          <footer class="entry-foot code">C404 // C404-AD-001 // RECEIVED</footer>
+        </article>
+
+        <!-- ENTRY: C404-AD-002 -->
+        <article class="entry" id="e-ad002" data-seq="2" data-intro="AD-002 是一段具备通信抑制能力的异常协议残留。" data-brief="AD-002 的异常性质表现为通信沉默。" hidden>
+          <header class="entry-head">
+            <div class="entry-code">
+              <span class="code">C404-AD-002</span>
+              <span class="pill p-cyan code">ad 数据</span>
+              <span>常规威胁 <span class="pill p-blue code">mdel</span></span>&nbsp;<span>附加 Bug <span class="pill p-gold code">xebg</span></span>
+            </div>
+            <h3 class="entry-title">「沉默协议」</h3>
+            <dl class="kv">
+              <div class="field"><dt>分类</dt><dd>ad（数据）</dd></div>
+              <div class="field"><dt>附加 Bug 分级</dt><dd><span class="pill p-gold code">xebg</span></dd></div>
+              <div class="field"><dt>常规威胁分级</dt><dd><span class="pill p-blue code">mdel</span></dd></div>
+              <div class="field"><dt>当前状态</dt><dd>已收容</dd></div>
+              <div class="field"><dt>收容位置</dt><dd>代码基站 Alpha-01，协议隔离区 P-02</dd></div>
+            </dl>
+          </header>
+          <div class="entry-body">
+
+      <p>AD-002 是一段具备通信抑制能力的异常协议残留。其名称来源于首次捕获时系统返回的自检提示：</p>
+      <blockquote><b>“协议已沉默，连接仍成立。”</b></blockquote>
+      <p>该数据流最初出现在一次内部通信测试中。测试人员发现，某条局域网链路显示为“已连接”，但所有传输内容均被替换为空数据包。进一步排查确认，链路上存在一段未知协议片段，它不会中断通信，也不会报错，而是将传输内容静默替换为无意义数据。</p>
+      <p>AD-002 的异常性质表现为<b>通信沉默</b>。受影响系统仍会显示连接正常、延迟稳定、传输成功，但实际内容已被替换。更危险的是，部分人员在长时间暴露于 AD-002 环境中后，会开始认为“沉默本身就是正常状态”，并对通信异常失去警觉。</p>
+      <p>收容过程中，组织曾尝试用常规断网手段清除 AD-002，结果导致受影响链路在物理断开后仍显示“在线”。此后改用协议隔离方案：将 AD-002 限制在独立通信环境中，并为其提供大量无意义数据作为“稳定输入”，以降低其对人员通信的侵蚀频率。</p>
+      <p>AD-002 目前处于被动收容状态。它不再主动扩散，但每当系统中出现长时间无内容通信时，其活动强度会短暂上升。</p>
+
+          </div>
+          <footer class="entry-foot code">C404 // C404-AD-002 // RECEIVED</footer>
+        </article>
+
+        <!-- ENTRY: C404-AD-003 -->
+        <article class="entry" id="e-ad003" data-seq="3" data-intro="AD-003 是一段具备自我复制能力的异常数据流。" data-brief="AD-003 的异常性质表现为递归自述。" hidden>
+          <header class="entry-head">
+            <div class="entry-code">
+              <span class="code">C404-AD-003</span>
+              <span class="pill p-cyan code">ad 数据</span>
+              <span>常规威胁 <span class="pill p-teal code">sael</span></span>&nbsp;<span>附加 Bug <span class="pill p-red code">rebg</span></span>
+            </div>
+            <h3 class="entry-title">「递归自述」</h3>
+            <dl class="kv">
+              <div class="field"><dt>分类</dt><dd>ad（数据）</dd></div>
+              <div class="field"><dt>附加 Bug 分级</dt><dd><span class="pill p-red code">rebg</span></dd></div>
+              <div class="field"><dt>常规威胁分级</dt><dd><span class="pill p-teal code">sael</span></dd></div>
+              <div class="field"><dt>当前状态</dt><dd>已收容</dd></div>
+              <div class="field"><dt>收容位置</dt><dd>代码基站 Alpha-01，递归隔离区 R-03</dd></div>
+            </dl>
+          </header>
+          <div class="entry-body">
+
+      <p>AD-003 是一段具备自我复制能力的异常数据流。其名称来源于首次捕获时系统返回的自检提示：</p>
+      <blockquote><b>“我在描述我，因此我存在。”</b></blockquote>
+      <p>该数据流最初出现在一段系统自检日志中。该日志原本用于记录服务器状态，但在归档后，日志内容开始不断重复描述自身结构，并逐渐替换原始记录。更异常的是，任何尝试删除该日志的行为都会生成新的副本，副本中会包含“删除失败”的说明。</p>
+      <p>AD-003 的异常性质表现为<b>递归自述</b>。它不会直接攻击系统，而是通过不断描述自身来占据存储空间和注意力。受影响系统会逐渐被大量自我指涉文本填满，最终导致正常记录无法写入。部分人员在长时间阅读 AD-003 后，会出现思维循环，表现为反复思考同一问题而无法推进。</p>
+      <p>收容过程中，组织曾尝试用常规删除手段清除 AD-003，结果导致受影响服务器中的全部日志被替换为递归自述文本。此后改用递归隔离方案：将 AD-003 限制在独立存储环境中，并为其提供大量空白空间作为“稳定输入”，以降低其对人员记录的侵蚀频率。</p>
+      <p>AD-003 目前处于被动收容状态。它不再主动扩散，但每当系统中出现大量空白存储空间时，其活动强度会短暂上升。</p>
+
+          </div>
+          <footer class="entry-foot code">C404 // C404-AD-003 // RECEIVED</footer>
+        </article>
+
+        <!-- ENTRY: C404-AD-004 -->
+        <article class="entry" id="e-ad004" data-seq="8" data-intro="AD-004 是一段具有认知剥离能力的异常数据流。" data-brief="AD-004 的异常性质表现为选择性认知剥离。" hidden>
+          <header class="entry-head">
+            <div class="entry-code">
+              <span class="code">C404-AD-004</span>
+              <span class="pill p-cyan code">ad 数据</span>
+              <span>常规威胁 <span class="pill p-blue code">mdel</span></span>&nbsp;<span>附加 Bug <span class="pill p-gold code">xebg</span></span>
+            </div>
+            <h3 class="entry-title">「空脑袋」</h3>
+            <dl class="kv">
+              <div class="field"><dt>分类</dt><dd>ad（数据）</dd></div>
+              <div class="field"><dt>附加 Bug 分级</dt><dd><span class="pill p-gold code">xebg</span></dd></div>
+              <div class="field"><dt>常规威胁分级</dt><dd><span class="pill p-blue code">mdel</span></dd></div>
+              <div class="field"><dt>当前状态</dt><dd>已收容</dd></div>
+              <div class="field"><dt>收容位置</dt><dd>代码基站 Alpha-01，认知隔离区 C-04</dd></div>
+            </dl>
+          </header>
+          <div class="entry-body">
+
+      <p>AD-004 是一段具有认知剥离能力的异常数据流。其名称来源于首次捕获时系统返回的自检提示：“头部为空，仍可运行。”</p>
+      <p>该数据流最初出现在一次人员访谈记录的自动归档过程中。受访者原本清晰描述了某次异常接触经历，但在记录上传至数据库后，所有涉及主观感受、情绪描述和个人判断的内容全部消失，仅保留客观事实片段。更异常的是，受访者本人在回顾记录时也表示“这些内容确实是我说的，但我不记得当时有这种感觉”。</p>
+      <p>AD-004 的异常性质表现为选择性认知剥离。它会识别并移除信息中的主观成分，包括情绪、直觉、隐喻、个人体验和无法量化的感受。受影响的数据不一定消失，但会变得空洞化，如同一个没有内在的躯壳。长期暴露于 AD-004 环境中的人员可能出现情感钝化，表现为难以描述自身感受或理解他人的情绪表达。</p>
+      <p>收容过程中，组织曾尝试用常规语义过滤手段隔离 AD-004，结果导致三座临时服务器中的全部人员访谈记录被剥离主观内容。此后改用认知隔离方案：将 AD-004 限制在独立文本环境中，并为其提供大量纯数据化内容作为“稳定输入”，以降低其对人员记录的侵蚀频率。</p>
+      <p>AD-004 目前处于被动收容状态。它不再主动扩散，但每当系统中出现高度主观化的描述时，其活动强度会短暂上升。</p>
+
+          </div>
+          <footer class="entry-foot code">C404 // C404-AD-004 // RECEIVED</footer>
+        </article>
+
+        <!-- ENTRY: C404-AD-005 -->
+        <article class="entry" id="e-ad005" data-seq="9" data-intro="AD-005 是一段具有语义稳定能力的异常数据流。" data-brief="AD-005 不具备物理攻击能力，但会对信息层造成持续侵蚀。" hidden>
+          <header class="entry-head">
+            <div class="entry-code">
+              <span class="code">C404-AD-005</span>
+              <span class="pill p-cyan code">ad 数据</span>
+              <span>常规威胁 <span class="pill p-blue code">mdel</span></span>&nbsp;<span>附加 Bug <span class="pill p-red code">rebg</span></span>
+            </div>
+            <h3 class="entry-title">「唯物主义」</h3>
+            <dl class="kv">
+              <div class="field"><dt>分类</dt><dd>ad（数据）</dd></div>
+              <div class="field"><dt>附加 Bug 分级</dt><dd><span class="pill p-red code">rebg</span></dd></div>
+              <div class="field"><dt>常规威胁分级</dt><dd><span class="pill p-blue code">mdel</span></dd></div>
+              <div class="field"><dt>当前状态</dt><dd>已收容</dd></div>
+              <div class="field"><dt>收容位置</dt><dd>代码基站 Alpha-01，语义隔离区 L-05</dd></div>
+            </dl>
+          </header>
+          <div class="entry-body">
+
+      <p>AD-005 是一段具有语义稳定能力的异常数据流。其名称来自首次捕获时系统返回的自检提示：“仅承认可观测实体。”</p>
+      <p>该数据流最初出现在一次权限系统异常中。多名员工报告称，某些收容对象的档案名称在界面上被自动替换为“无意义符号”，而对应的物理对象仍存在。进一步调查发现，AD-005 会尝试删除系统中无法被直接观测、测量或验证的描述内容，包括隐喻、假设、推测性记录和部分异常效应说明。</p>
+      <p>AD-005 不具备物理攻击能力，但会对信息层造成持续侵蚀。受其影响，档案可能失去描述性段落，日志可能删去主观判断，甚至人员访谈记录也会被改写为纯数据化表述。若长期暴露于 AD-005 环境中，部分员工会出现认知窄化，表现为拒绝讨论无法立即验证的事物。</p>
+      <p>收容过程中，组织曾尝试用常规删除手段清除 AD-005，结果导致三座临时服务器中的全部异常档案描述被清空。此后改用语义隔离方案：将 AD-005 限制在独立文本环境中，并为其提供大量可验证的普通数据作为“稳定输入”，以降低其对异常档案的侵蚀频率。</p>
+      <p>AD-005 目前处于被动收容状态。它不再主动扩散，但每当系统中出现高度不确定的描述时，其活动强度会短暂上升。</p>
+
+          </div>
+          <footer class="entry-foot code">C404 // C404-AD-005 // RECEIVED</footer>
+        </article>
+
+        <!-- ENTRY: C404-AD-006 -->
+        <article class="entry" id="e-ad006" data-seq="10" data-intro="AD-006 是一段无法被完整保存的异常数据流。" data-brief="AD-006 的异常性质表现为信息自隐。" hidden>
+          <header class="entry-head">
+            <div class="entry-code">
+              <span class="code">C404-AD-006</span>
+              <span class="pill p-cyan code">ad 数据</span>
+              <span>常规威胁 <span class="pill p-teal code">sael</span></span>&nbsp;<span>附加 Bug <span class="pill p-gold code">xebg</span></span>
+            </div>
+            <h3 class="entry-title">「或许无人知」</h3>
+            <dl class="kv">
+              <div class="field"><dt>分类</dt><dd>ad（数据）</dd></div>
+              <div class="field"><dt>附加 Bug 分级</dt><dd><span class="pill p-gold code">xebg</span></dd></div>
+              <div class="field"><dt>常规威胁分级</dt><dd><span class="pill p-teal code">sael</span></dd></div>
+              <div class="field"><dt>当前状态</dt><dd>活跃</dd></div>
+              <div class="field"><dt>收容位置</dt><dd>未固定</dd></div>
+            </dl>
+          </header>
+          <div class="entry-body">
+
+      <p>AD-006 是一段无法被完整保存的异常数据流。任何尝试记录、复制或截图该数据流的行为都会导致记录内容发生缺失。缺失部分通常表现为空白、乱码或一句重复出现的短语：</p>
+      <blockquote>或许无人知。</blockquote>
+      <p>AD-006 首次被发现于一段被自动清理的维护日志中。该日志原本记录了某次异常数据接触过程，但在归档后，关键段落全部消失，仅留下上述短语。随后，多名参与调查的员工表示，他们仍能回忆起部分内容，但彼此记忆存在明显差异，且无人能确认哪一版本更接近原始记录。</p>
+      <p>AD-006 的异常性质表现为信息自隐。它不会直接删除数据，而是使数据在传播过程中逐渐失去可确认性。受影响的信息不一定消失，但会变得无法被多人同时一致验证。随着时间推移，相关记录会分裂为多个互相矛盾的版本，最终无人能确定事实原貌。</p>
+      <p>目前 AD-006 无法被完全收容。组织采取的措施包括：对疑似受其影响的信息进行多源备份、限制单一人员独占关键记忆、以及在档案中标注“或许无人知”作为风险提示。</p>
+      <p>AD-006 的存在提醒所有维护人员：有些异常并不以破坏形式出现，而是让真相慢慢变得不再可靠。</p>
+
+          </div>
+          <footer class="entry-foot code">C404 // C404-AD-006 // RECEIVED</footer>
+        </article>
+
+        <!-- ENTRY: C404-ENT-996 -->
+        <article class="entry" id="e-ent996" data-seq="12" data-intro="ENT-996 是一类源自上世纪游戏内被删除数据废案的异常实体。" data-brief="ENT-996 的异常性质表现为形态不稳定与记忆侵蚀。" hidden>
+          <header class="entry-head">
+            <div class="entry-code">
+              <span class="code">C404-ENT-996</span>
+              <span class="pill p-cyan code">ent 实体</span>
+              <span>常规威胁 <span class="pill p-gold code">hiel</span></span>&nbsp;<span>附加 Bug <span class="pill p-gold code">xebg</span></span>
+            </div>
+            <h3 class="entry-title">「Missing No.?」</h3>
+            <dl class="kv">
+              <div class="field"><dt>分类</dt><dd>ent（实体）</dd></div>
+              <div class="field"><dt>附加 Bug 分级</dt><dd><span class="pill p-gold code">xebg</span></dd></div>
+              <div class="field"><dt>常规威胁分级</dt><dd><span class="pill p-gold code">hiel</span></dd></div>
+              <div class="field"><dt>当前状态</dt><dd>已收容</dd></div>
+              <div class="field"><dt>收容位置</dt><dd>代码基站 Alpha-01，实体隔离区 E-996</dd></div>
+            </dl>
+          </header>
+          <div class="entry-body">
+
+      <p>ENT-996 是一类源自上世纪游戏内被删除数据废案的异常实体。其名称来源于首次捕获时系统返回的自检提示：</p>
+      <blockquote>"数据缺失，实体已加载。"</blockquote>
+      <p>该实体最初于 2009 年被记录。当时，一名加拿大用户使用电脑模拟器运行某款上世纪发行的游戏，期间其电脑遭受隐藏病毒“Conficker 蠕虫”攻击。病毒导致系统异常读取了游戏内本不应被加载的空白废案数据，随后该空白数据在模拟器环境中具象化为实体。组织在监测到异常数据外溢后介入，将该实体从用户终端中分离并收容。</p>
+      <p>ENT-996 的异常性质表现为形态不稳定与记忆侵蚀。其外观不具备固定形态，但所有观测记录均显示其带有明显的黑白像素特征。目前已确认的形态包括：</p>
+      <ul>
+        <li>一名佩戴棒球帽、双手呈现疑似冻伤状态的 10～14 岁男性；</li>
+        <li>一具下半身被埋藏在陶瓷板下的惨白人形尸体；</li>
+        <li>一具体长约两米的乌贼化石状结构；</li>
+        <li>一条体长约三米、持续变化的白紫色乱码带，此为最常见形态。</li>
+      </ul>
+      <p>ENT-996 在接近人员时，会引发不同程度的记忆异常。受影响人员通常先出现短期记忆缺失，随后发展为长期记忆紊乱，表现为无法辨识熟悉面孔、遗忘自身身份或混淆不同时间线的事件。在收容过程中，该实体已造成多名人员记忆永久缺失，并间接导致数次不明原因的减员事件——部分人员在暴露后表现出"不认识自己所在环境"的状态，进而做出危险行为。</p>
+      <h4>收容过程</h4>
+      <p>ENT-996 最初被发现于上述加拿大用户的电脑终端中。当时该用户的模拟器窗口已无法正常关闭，屏幕中持续显示黑白像素闪烁，且系统日志中出现大量无法解析的数据片段。组织技术人员远程接入后，发现该实体正通过模拟器向外部网络尝试扩散。</p>
+      <p>收容小组抵达现场后，将该终端物理断网并装入屏蔽箱运输至代码基站 Alpha-01。运输途中，一名押运人员报告"看到箱内有小孩在挥手"，随后陷入短暂意识模糊。抵达隔离区后，组织尝试用常规数据清除手段处理 ENT-996，结果导致其形态在三种外观之间快速切换，并引发隔离区内三名人员的记忆紊乱。</p>
+      <p>此后改用实体隔离方案：将 ENT-996 限制在独立屏蔽环境中，周围部署无记忆存储能力的自动化监控设备，禁止任何具备个人数据存储功能的设备进入隔离区。所有接触人员需佩戴记忆稳定装置，并在暴露后接受 72 小时观察。</p>
+      <h4>总结</h4>
+      <p>ENT-996 是一种由被删除游戏数据在病毒干扰下具象化的异常实体。其核心威胁在于形态不可预测，且会对接触者造成渐进式记忆侵蚀。目前该实体处于稳定收容状态，未表现出主动突破行为，但其记忆侵蚀效应在近距离接触时仍会触发。</p>
+      <p>组织已确认 ENT-996 与游戏原始废案数据之间存在某种残留链接，但链接源头尚未查明。在找到彻底清除该实体的方法之前，所有人员不得单独进入隔离区 E-996，不得在隔离区内使用任何个人存储设备。</p>
+
+          </div>
+          <footer class="entry-foot code">C404 // C404-ENT-996 // RECEIVED</footer>
+        </article>
+
+        <!-- ENTRY: C404-ENT-996-A -->
+        <article class="entry" id="e-ent996a" data-seq="13" data-intro="ENT-996-A 是 ENT-996「Missing No.?」的衍生亚种，被定义为一种具备自主意识的异常电子病毒。" data-brief="ENT-996-A 的异常性质表现为全介质渗透与拟态潜伏。" hidden>
+          <header class="entry-head">
+            <div class="entry-code">
+              <span class="code">C404-ENT-996-A</span>
+              <span class="pill p-cyan code">ent 实体</span>
+              <span>常规威胁 <span class="pill p-gold code">hiel</span></span>&nbsp;<span>附加 Bug <span class="pill p-gold code">xebg</span></span>
+            </div>
+            <h3 class="entry-title">「Normal Member.?」</h3>
+            <dl class="kv">
+              <div class="field"><dt>分类</dt><dd>ent（实体）</dd></div>
+              <div class="field"><dt>附加 Bug 分级</dt><dd><span class="pill p-gold code">xebg</span></dd></div>
+              <div class="field"><dt>常规威胁分级</dt><dd><span class="pill p-gold code">hiel</span></dd></div>
+              <div class="field"><dt>当前状态</dt><dd>已收容</dd></div>
+              <div class="field"><dt>收容位置</dt><dd>代码基站 Alpha-01，零电隔离区 Z-996A</dd></div>
+            </dl>
+          </header>
+          <div class="entry-body">
+
+      <p>ENT-996-A 是 ENT-996「Missing No.?」的衍生亚种，被定义为一种具备自主意识的异常电子病毒。其名称来源于该实体首次被检测到时的系统自检输出：</p>
+      <blockquote>"成员状态：正常。身份：未知。"</blockquote>
+      <p>ENT-996-A 的异常性质表现为全介质渗透与拟态潜伏。该病毒能够侵入任何类型的电子设备，包括但不限于计算机、智能手机、嵌入式芯片、数字存储介质、网络路由器，甚至带有微处理器的家用电器。其渗透方式不依赖常规网络协议或物理接口，而是通过电磁场耦合、电源线路传导及硬件底层漏洞实现"无孔不入"的入侵。一旦进入系统，ENT-996-A 会以极低优先级进程的形式潜伏，常规杀毒软件和系统监控无法检测其存在。</p>
+      <p>与常规病毒不同，ENT-996-A 在长期收容过程中表现出明显的智慧特征。组织记录显示，该实体能够根据环境变化调整自身行为模式：在早期收容阶段，它曾尝试通过修改系统日志来掩盖自身存在；中期阶段，它开始模仿正常系统进程的语言风格与组织内部人员通信；近期观测中，该实体甚至表现出对"被收容"状态的认知，并多次尝试通过未通电设备之间的电磁感应进行跨介质转移。</p>
+      <h4>收容过程</h4>
+      <p>ENT-996-A 最初于 ENT-996 收容后约三个月被发现。当时，隔离区 E-996 外围的一台备用监控主机出现异常日志记录，内容包含大量无意义的重复字符与疑似对话片段。技术人员在排查过程中发现，该主机并未与任何外部网络连接，但内部存储中仍存在一段无法删除的异常代码。</p>
+      <p>组织随后确认该代码为 ENT-996 的衍生亚种，并立即启动全面断电程序。在切断基站 Alpha-01 部分区域供电后，ENT-996-A 的活动显著减少，但仍能在未断电设备之间跳跃转移。经过长达数周的排查，组织最终确认唯一有效的收容方式为彻底杜绝一切电器——即建立一个完全无电、无电子设备、无电磁信号的隔离环境。</p>
+      <p>零电隔离区 Z-996A 由此建立。该区域位于基站地下三层，所有墙体采用铅板与法拉第笼结构屏蔽，内部不使用任何电力设备，照明依赖自然光导入系统，监控通过机械式光学观察窗与人工轮值完成。ENT-996-A 被限制在该区域内的一台物理隔离的老旧终端中，该终端已拆除所有无线模块并切断外部连接。</p>
+      <h4>智慧表现记录</h4>
+      <p>在数十年的收容过程中，组织记录了多起 ENT-996-A 表现出智慧特征的事件：</p>
+      <ul>
+        <li>1998 年：终端屏幕自发显示一行文字："我知道你们在看。"</li>
+        <li>2005 年：该实体通过终端扬声器播放了一段合成语音，内容为组织某位已退休研究员的声音，试图诱导值班人员靠近终端。</li>
+        <li>2013 年：在一次例行人工巡检中，值班人员报告听到隔离区内传来"类似多人低声交谈"的声音，但区域内并无任何发声设备。</li>
+        <li>2021 年：终端键盘在无操作状态下自行输入了一段完整句子："断电不是收容，是沉默。"</li>
+      </ul>
+      <h4>总结</h4>
+      <p>ENT-996-A 是一种由 ENT-996 衍生、具备自主意识的异常电子病毒。其核心威胁在于渗透能力极强且几乎无法被常规手段清除，唯一有效的收容方式是建立完全无电的隔离环境。该实体在长期收容中展现出的智慧特征表明，它已从单纯的病毒演化为一种具有认知能力的异常存在。</p>
+      <p>组织目前无法确认 ENT-996-A 的智慧是自发产生，还是继承了 ENT-996 原始数据中的某种残留信息。在找到彻底清除该实体的方法之前，零电隔离区 Z-996A 将维持永久封闭状态，任何人员不得携带电子设备进入该区域，不得与 ENT-996-A 进行任何形式的交互。</p>
+
+          </div>
+          <footer class="entry-foot code">C404 // C404-ENT-996-A // RECEIVED</footer>
+        </article>
+
+        <!-- ENTRY: C404-OBJ-883 -->
+        <article class="entry" id="e-obj883" data-seq="11" data-intro="C404-OBJ-883 外观为一只标准有线光电鼠标，外壳为黑色磨砂塑料，品牌标识因多次磨损已无法辨认。" data-brief="OBJ-883 可通过点击、拖拽、右键菜单和快捷键组合对现实对象施加类似图形界面的操作。" hidden>
+          <header class="entry-head">
+            <div class="entry-code">
+              <span class="code">C404-OBJ-883</span>
+              <span class="pill p-cyan code">obj 物品</span>
+              <span>常规威胁 <span class="pill p-gold code">hiel</span></span>&nbsp;<span>附加 Bug <span class="pill p-red code">rebg</span></span>
+            </div>
+            <h3 class="entry-title">「超现实鼠标」</h3>
+            <dl class="kv">
+              <div class="field"><dt>分类</dt><dd>obj（物品）</dd></div>
+              <div class="field"><dt>附加 Bug 分级</dt><dd><span class="pill p-red code">rebg</span></dd></div>
+              <div class="field"><dt>常规威胁分级</dt><dd><span class="pill p-gold code">hiel</span></dd></div>
+              <div class="field"><dt>当前状态</dt><dd>已收容</dd></div>
+              <div class="field"><dt>收容位置</dt><dd>代码基站 Alpha-01，物理隔离柜 P-883</dd></div>
+              <div class="field field-full"><dt>关联事件</dt><dd>C404-STH-0883「大规模界面攻击事件」</dd></div>
+            </dl>
+          </header>
+          <div class="entry-body">
+
+      <h4>介绍</h4>
+      <p>C404-OBJ-883 外观为一只标准有线光电鼠标，外壳为黑色磨砂塑料，品牌标识因多次磨损已无法辨认。经检测，其内部电路、传感器、线缆与接口均符合普通办公鼠标规格，未发现异常硬件改造痕迹。</p>
+      <p>OBJ-883 的异常性质并非来自本体，而是源于一次由异常数据流引发的大规模网站攻击事件。在该事件中，大量异常界面覆写代码通过全球网络节点扩散，OBJ-883 当时正连接于一台受影响的维护终端。攻击结束后，该鼠标被确认获得了在现实层中执行部分界面操作的能力。</p>
+      <p>OBJ-883 可通过点击、拖拽、右键菜单和快捷键组合对现实对象施加类似图形界面的操作。已确认能力包括：</p>
+      <ul>
+        <li><b>重命名：</b> 改变目标对象的名称、标识或认知标签，使其在记录、对话和系统中呈现新名称。</li>
+        <li><b>删除：</b> 将目标对象从当前现实界面层移除。被删除对象不一定彻底消失，可能转入无法观测的隔离状态。</li>
+        <li><b>复制粘贴：</b> 生成目标对象的副本。副本初期与原件高度一致，但随时间推移会出现细节偏差。</li>
+        <li><b>剪切：</b> 将目标对象从原位置移除，并暂存于未明缓冲状态，等待粘贴。</li>
+        <li><b>属性修改：</b> 更改目标对象的部分基础属性，如颜色、质量显示、权限标记或状态标签。</li>
+      </ul>
+      <p>OBJ-883 本身不具备自主意识，也不会主动执行操作。它必须经由使用者点击和指令输入才能生效。然而，一旦使用者误操作，其影响可能立即扩散至现实环境，因此被定为高危收容对象。</p>
+      <h4>注意</h4>
+      <ol>
+        <li>禁止任何未经 4级员工 批准的测试。</li>
+        <li>禁止将 OBJ-883 连接至联网终端、收容控制系统或具备现实层接口的设备。</li>
+        <li>测试时不得对人员、设施结构、收容协议或权限系统使用“删除”“剪切”或“重命名”操作。</li>
+        <li>禁止尝试复制 OBJ-883 本体。此前一次未经授权的复制尝试导致测试室内出现两只功能相同但行为反馈不一致的鼠标，造成三名测试员认知冲突。</li>
+        <li>所有操作人员必须佩戴独立身份标识牌，防止因“重命名”效应导致身份记录混乱。</li>
+        <li>若 OBJ-883 在收容状态下自行亮起传感器灯光，立即启动物理隔离程序，并通知融控单位待命。</li>
+      </ol>
+      <h4>现收容方式</h4>
+      <p>OBJ-883 收容于代码基站 Alpha-01 的物理隔离柜 P-883 中。隔离柜为金属密封结构，内衬非导电材料，不与任何电子系统连接。柜体外部设有双重机械锁，钥匙分别由两名 3级员工 保管。</p>
+      <p>OBJ-883 的线缆被截断并封存于独立容器中，防止其再次接入任何终端。鼠标本体表面覆盖绝缘保护膜，避免意外点击。隔离柜周围部署有离线监控摄像头，录像仅本地存储，不接入网络。</p>
+      <p>每周进行一次外观检查，确认 OBJ-883 未出现新增接口、未知符号或自我复制迹象。检查过程必须由两名员工共同完成，并在纸质日志中记录。</p>
+      <h4>收容过程</h4>
+      <p>OBJ-883 的异常性质首次暴露于一次大规模网站攻击事件中。该事件最初被判定为常规网络攻击，但随后维基管理员发现攻击源头包含无法解析的异常界面代码。这些代码不仅篡改网页显示，还开始影响连接终端的外设行为。</p>
+      <p>当时，OBJ-883 正连接于一台负责监控攻击态势的维护终端。在异常代码流经该终端期间，鼠标传感器出现异常闪烁，随后使用者报告称桌面上的文件图标被“拖出屏幕”，并在现实桌面上形成实体副本。该现象最初被误认为幻觉，直到测试室内的一台打印机被右键“删除”后从物理空间中消失。</p>
+      <p>组织随即派出融控单位前往现场封锁。收容过程中，一名操作员试图通过“复制”OBJ-883 来研究其异常机制，结果导致隔离区内出现第二只功能相同的鼠标。两只鼠标同时被不同人员操作，引发局部现实界面混乱：部分设备名称被反复重命名，走廊标识出现错误指向，两名员工一度被系统记录为同一身份。</p>
+      <p>为阻止扩散，现场指挥官下令切断该区域所有电源，并启用离线物理收容方案。收容行动最终成功，但付出了巨大牺牲。三名员工因现实层错位陷入持续认知混乱，目前仍处于观察状态；一名员工在“删除”效应扩散期间失踪，其身份记录被系统标记为“未命名对象”，至今未能恢复。</p>
+      <h4>总结</h4>
+      <p>C404-OBJ-883 证明异常数据流可通过普通外设进入现实层，并将界面操作转化为物理效应。它本身并非武器，但其能力若被误用或恶意利用，可能造成身份系统崩溃、收容对象丢失和局部现实结构紊乱。</p>
+      <p>目前 OBJ-883 已被稳定收容，但其异常来源仍未完全查明。后续调查指向那次大规模网站攻击背后存在更复杂的异常数据协同行为。组织已将 OBJ-883 列为高危现实级物品，并禁止一切非必要测试。</p>
+      <p>该案例也被用于新员工培训：<b>现实不是桌面，任何一次右键删除都可能无法撤销。</b></p>
+
+          </div>
+          <footer class="entry-foot code">C404 // C404-OBJ-883 // RECEIVED</footer>
+        </article>
+
+        <!-- ENTRY: C404-SPI-001 -->
+        <article class="entry" id="e-spi001" data-seq="5" data-intro="SPI-001 是一种区域性网络路由异常效应。" data-brief="SPI-001 的异常性质表现为路径诱导。" hidden>
+          <header class="entry-head">
+            <div class="entry-code">
+              <span class="code">C404-SPI-001</span>
+              <span class="pill p-cyan code">spi 效应</span>
+              <span>常规威胁 <span class="pill p-teal code">sael</span></span>&nbsp;<span>附加 Bug <span class="pill p-gold code">xebg</span></span>
+            </div>
+            <h3 class="entry-title">「此路向死，或向远方」</h3>
+            <dl class="kv">
+              <div class="field"><dt>分类</dt><dd>spi（效应）</dd></div>
+              <div class="field"><dt>附加 Bug 分级</dt><dd><span class="pill p-gold code">xebg</span></dd></div>
+
+              <div class="field"><dt>常规威胁分级</dt><dd><span class="pill p-teal code">sael</span></dd></div>
+              <div class="field"><dt>当前状态</dt><dd>持续活跃</dd></div>
+              <div class="field"><dt>影响范围</dt><dd>代码站点 Prime 周边路由节点</dd></div>
+            </dl>
+          </header>
+          <div class="entry-body">
+
+      <p>SPI-001 是一种区域性网络路由异常效应。其名称来源于受影响设备日志中反复出现的提示文本：</p>
+      <blockquote>此路向死，或向远方。</blockquote>
+      <p>该效应首次被发现于底层网络维护组的一次跨区域链路测试中。当时，工程师发现某条本应废弃的传输路径仍显示为畅通状态。进一步追踪后确认，该路径并不指向任何已知节点，而是持续输出上述提示文本。</p>
+      <p>SPI-001 的异常性质表现为路径诱导。当设备接入受影响的路由节点时，会在数秒内失去常规网络连接，但其日志仍会显示“传输成功”。部分设备随后开始记录来自不存在地点的响应数据，包括空机房中的温湿度读数、已断电服务器的运行状态，以及一段无法定位来源的维护语音。</p>
+      <p>受影响人员报告称，在效应活跃期间会产生一种“被引导”的感觉，仿佛某条路径在主动邀请他们前往。所有尝试追踪其终点的行动均未返回完整结果，部分参与追踪的设备至今仍处于离线状态。</p>
+      <p>目前组织以阻断为主进行应对。所有已知触发节点已被隔离，相关路由表片段由维基管理员定期清洗。SPI-001 仍会在新的网络环境中重现，频率约为每四十七天一次。</p>
+
+          </div>
+          <footer class="entry-foot code">C404 // C404-SPI-001 // RECEIVED</footer>
+        </article>
+
+        <!-- ENTRY: C404-SPI-002 -->
+        <article class="entry" id="e-spi002" data-seq="6" data-intro="SPI-002 是一种与高温作业环境相关的异常效应。" data-brief="SPI-002 的异常性质表现为感知增强。" hidden>
+          <header class="entry-head">
+            <div class="entry-code">
+
+              <span class="code">C404-SPI-002</span>
+              <span class="pill p-cyan code">spi 效应</span>
+
+              <span>常规威胁 <span class="pill p-blue code">mdel</span></span>&nbsp;<span>附加 Bug <span class="pill p-red code">rebg</span></span>
+            </div>
+            <h3 class="entry-title">「炉火纯青时」</h3>
+            <dl class="kv">
+              <div class="field"><dt>分类</dt><dd>spi（效应）</dd></div>
+              <div class="field"><dt>附加 Bug 分级</dt><dd><span class="pill p-red code">rebg</span></dd></div>
+
+              <div class="field"><dt>常规威胁分级</dt><dd><span class="pill p-blue code">mdel</span></dd></div>
+              <div class="field"><dt>当前状态</dt><dd>间歇性活跃</dd></div>
+              <div class="field"><dt>影响范围</dt><dd>代码基站 Alpha-01 熔炼车间及周边区域</dd></div>
+            </dl>
+          </header>
+          <div class="entry-body">
+
+      <p>SPI-002 是一种与高温作业环境相关的异常效应。其名称来源于受影响人员报告中的一句描述：“炉火纯青时，我看见它在燃烧。”</p>
+      <p>该效应首次被发现于代码基站 Alpha-01 的熔炼车间。当时，多名操作员报告称，在特定温度区间（约 1200°C 至 1350°C）进行金属熔炼作业时，会观察到熔融金属中出现不属于任何已知光谱的色彩。这些色彩无法被摄像设备记录，但多名目击者描述高度一致，表现为“一种介于金色与透明之间的光”。</p>
+      <p>SPI-002 的异常性质表现为感知增强。受影响人员在效应活跃期间会产生短暂的认知扩展，表现为能够“看见”材料的内部结构、感知能量的流动方向，甚至预判设备故障。部分人员报告称，他们在那段时间内能够理解平时无法解析的异常数据流。</p>
+      <p>然而，效应结束后，所有相关人员均无法复现当时的认知状态，仅保留模糊的记忆片段。长期反复暴露于 SPI-002 环境中的人员可能出现认知依赖，表现为对高温作业环境的异常渴望。</p>
+
+      <p>目前组织采取监测为主进行应对。熔炼车间已部署独立监控设备，并在效应活跃期间暂停所有高危作业。SPI-002 的触发条件尚未完全明确，但似乎与特定温度区间、金属种类和操作人员状态有关。</p>
+
+          </div>
+          <footer class="entry-foot code">C404 // C404-SPI-002 // RECEIVED</footer>
+        </article>
+
+        <!-- ENTRY: C404-SPI-003 -->
+        <article class="entry" id="e-spi003" data-seq="7" data-intro="SPI-003 是一种与档案阅读行为相关的异常效应。" data-brief="SPI-003 的异常性质表现为情绪传导。" hidden>
+          <header class="entry-head">
+            <div class="entry-code">
+              <span class="code">C404-SPI-003</span>
+              <span class="pill p-cyan code">spi 效应</span>
+              <span>常规威胁 <span class="pill p-teal code">sael</span></span>&nbsp;<span>附加 Bug <span class="pill p-gold code">xebg</span></span>
+            </div>
+            <h3 class="entry-title">「忧郁蓝调」</h3>
+            <dl class="kv">
+              <div class="field"><dt>分类</dt><dd>spi（效应）</dd></div>
+              <div class="field"><dt>附加 Bug 分级</dt><dd><span class="pill p-gold code">xebg</span></dd></div>
+              <div class="field"><dt>常规威胁分级</dt><dd><span class="pill p-teal code">sael</span></dd></div>
+              <div class="field"><dt>当前状态</dt><dd>持续活跃</dd></div>
+              <div class="field"><dt>影响范围</dt><dd>代码站点 Prime 档案库 A 区</dd></div>
+            </dl>
+          </header>
+          <div class="entry-body">
+
+      <p>SPI-003 是一种与档案阅读行为相关的异常效应。其名称来源于受影响人员报告中的情绪描述：“读着读着，就感到一种蓝色的忧郁。”</p>
+      <p>该效应首次被发现于代码站点 Prime 档案库 A 区。当时，多名研究人员报告称，在阅读特定历史档案时会产生强烈的情绪共鸣，表现为一种深沉而宁静的忧郁感。这种情绪并非由档案内容直接引发，因为受影响档案涉及的主题各不相同，包括设备维护记录、人员调动通知和常规日志。</p>
+      <p>SPI-003 的异常性质表现为情绪传导。受影响人员在阅读档案时会体验到一种不属于自身的情绪状态，仿佛档案本身承载着某种集体记忆。部分人员报告称，他们在效应活跃期间能够“感受”到档案撰写者当时的心理状态，甚至产生短暂的共情连接。</p>
+      <p>然而，效应结束后，所有相关人员均无法准确描述所体验的具体情绪，仅保留“蓝色”这一色彩联想。长期反复暴露于 SPI-003 环境中的人员可能出现情绪钝化，表现为对日常刺激的反应减弱。</p>
+      <p>目前组织采取限制为主进行应对。档案库 A 区已部署情绪监测设备，并在效应活跃期间暂停所有档案阅读作业。SPI-003 的触发条件尚未完全明确，但似乎与特定档案类型、阅读时长和人员心理状态有关。</p>
+
+          </div>
+          <footer class="entry-foot code">C404 // C404-SPI-003 // RECEIVED</footer>
+        </article>
+
+        <!-- ENTRY: C404-STH-0012 -->
+        <article class="entry" id="e-sth0012" data-seq="14" data-intro="1993 年 4 月 22 日 09:47，B 栋三层东侧走廊在无任何外部触发条件下，墙面与天花板同步变为纯灰色平面，所有纹理、标识、门窗边框完全消失，视觉深度信息丢失。" data-brief="异常状态持续 23 分钟后自行恢复，所有墙面纹理与标识同步还原。" hidden>
+          <header class="entry-head">
+            <div class="entry-code">
+              <span class="code">C404-STH-0012</span>
+              <span class="pill p-cyan code">sth 事件</span>
+              <span>常规威胁 <span class="pill p-teal code">sael</span></span>&nbsp;<span>附加 Bug <span class="pill p-red code">rebg</span></span>
+            </div>
+            <h3 class="entry-title">「灰屏走廊事件」</h3>
+            <dl class="kv">
+              <div class="field"><dt>分类</dt><dd>sth（事件）</dd></div>
+              <div class="field"><dt>附加 Bug 分级</dt><dd><span class="pill p-red code">rebg</span></dd></div>
+              <div class="field"><dt>常规威胁分级</dt><dd><span class="pill p-teal code">sael</span></dd></div>
+              <div class="field"><dt>发生时间</dt><dd>1993-04-22</dd></div>
+              <div class="field"><dt>发生位置</dt><dd>代码基站 Alpha-01，B 栋三层东侧走廊</dd></div>
+            </dl>
+          </header>
+          <div class="entry-body">
+
+      <p>1993 年 4 月 22 日 09:47，B 栋三层东侧走廊在无任何外部触发条件下，墙面与天花板同步变为纯灰色平面，所有纹理、标识、门窗边框完全消失，视觉深度信息丢失。该区域内两名巡逻人员报告"无法判断前方距离"，其中一人向前行走约 15 秒后从监控中消失，约 4 分钟后从走廊另一端重新出现，自称"一直在原地站立"。</p>
+      <p>异常状态持续 23 分钟后自行恢复，所有墙面纹理与标识同步还原。消失人员经检查无身体损伤，但无法回忆消失期间的任何经历。事后排查未发现任何异常设备或数据残留。该事件被认定为一次自发性现实渲染故障，具体成因不明。</p>
+
+          </div>
+          <footer class="entry-foot code">C404 // C404-STH-0012 // RECEIVED</footer>
+        </article>
+
+        <!-- ENTRY: C404-STH-0037 -->
+        <article class="entry" id="e-sth0037" data-seq="15" data-intro="2001 年 11 月 8 日早班点名期间，调度中心电子点名系统出现异常。" data-brief="随后点名系统恢复正常，后续姓名播报无异常。" hidden>
+          <header class="entry-head">
+            <div class="entry-code">
+              <span class="code">C404-STH-0037</span>
+              <span class="pill p-cyan code">sth 事件</span>
+              <span>常规威胁 <span class="pill p-teal code">sael</span></span>&nbsp;<span>附加 Bug <span class="pill p-red code">rebg</span></span>
+            </div>
+            <h3 class="entry-title">「递归点名事件」</h3>
+            <dl class="kv">
+              <div class="field"><dt>分类</dt><dd>sth（事件）</dd></div>
+              <div class="field"><dt>附加 Bug 分级</dt><dd><span class="pill p-red code">rebg</span></dd></div>
+              <div class="field"><dt>常规威胁分级</dt><dd><span class="pill p-teal code">sael</span></dd></div>
+              <div class="field"><dt>发生时间</dt><dd>2001-11-08</dd></div>
+              <div class="field"><dt>发生位置</dt><dd>代码基站 Alpha-01，人员调度中心</dd></div>
+            </dl>
+          </header>
+          <div class="entry-body">
+
+      <p>2001 年 11 月 8 日早班点名期间，调度中心电子点名系统出现异常。当值班主管念到编号 E-4417 的员工姓名时，系统自动将该姓名重复播报 17 次，每次音量递增。第 17 次播报结束后，在场所有人员同时听到一声来自天花板方向的机械提示音：</p>
+      <blockquote>"副本已创建。"</blockquote>
+      <p>随后点名系统恢复正常，后续姓名播报无异常。但当日考勤记录显示，E-4417 的打卡记录出现了两条完全相同的时间戳，且两条记录对应的门禁摄像头画面中，该员工分别从不同方向进入基站。经核实，其中一条记录为系统冗余数据，已作清除处理。E-4417 本人对事件无任何异常反馈。</p>
+
+          </div>
+          <footer class="entry-foot code">C404 // C404-STH-0037 // RECEIVED</footer>
+        </article>
+
+        <!-- ENTRY: C404-STH-0054 -->
+        <article class="entry" id="e-sth0054" data-seq="16" data-intro="2008 年 7 月 13 日凌晨 03:02，基站全域广播系统在无操作指令的情况下自动开启。" data-brief="静默结束后，广播系统日志中未留下任何开启或关闭记录，仿佛该时段从未发生过广播行为。" hidden>
+          <header class="entry-head">
+            <div class="entry-code">
+              <span class="code">C404-STH-0054</span>
+              <span class="pill p-cyan code">sth 事件</span>
+              <span>常规威胁 <span class="pill p-gold code">hiel</span></span>&nbsp;<span>附加 Bug <span class="pill p-gold code">xebg</span></span>
+            </div>
+            <h3 class="entry-title">「静默广播事件」</h3>
+            <dl class="kv">
+              <div class="field"><dt>分类</dt><dd>sth（事件）</dd></div>
+              <div class="field"><dt>附加 Bug 分级</dt><dd><span class="pill p-gold code">xebg</span></dd></div>
+              <div class="field"><dt>常规威胁分级</dt><dd><span class="pill p-gold code">hiel</span></dd></div>
+              <div class="field"><dt>发生时间</dt><dd>2008-07-13</dd></div>
+              <div class="field"><dt>发生位置</dt><dd>代码基站 Alpha-01，全域广播系统</dd></div>
+            </dl>
+          </header>
+          <div class="entry-body">
+
+      <p>2008 年 7 月 13 日凌晨 03:02，基站全域广播系统在无操作指令的情况下自动开启。所有区域的扬声器同时播放一段持续 4 分 33 秒的绝对静默——经音频设备检测，该时段内扬声器确实处于工作状态，但输出信号为零，连背景底噪也被完全抹除。</p>
+      <p>静默期间，基站内 47 名在岗人员中有 12 人报告出现"听到某种声音但无法描述"的主观感受，其中 3 人表示该"声音"像是在呼唤自己的名字。静默结束后，广播系统日志中未留下任何开启或关闭记录，仿佛该时段从未发生过广播行为。</p>
+      <p>此后每年 7 月 13 日凌晨，组织会对全域广播系统进行额外监控，至今未再复现该事件。</p>
+
+          </div>
+          <footer class="entry-foot code">C404 // C404-STH-0054 // RECEIVED</footer>
+        </article>
+
+        <!-- ENTRY: C404-STH-0071 -->
+        <article class="entry" id="e-sth0071" data-seq="17" data-intro="2017 年 2 月 28 日，一名 3 级研究员在 D 栋二层寻找会议室时，发现走廊尽头多出了一扇此前不存在的门。" data-brief="房间内陈设与基站标准会议室一致，但所有物品表面均无品牌标识、无文字标签、无序列号。" hidden>
+          <header class="entry-head">
+            <div class="entry-code">
+              <span class="code">C404-STH-0071</span>
+              <span class="pill p-cyan code">sth 事件</span>
+              <span>常规威胁 <span class="pill p-teal code">sael</span></span>&nbsp;<span>附加 Bug <span class="pill p-red code">rebg</span></span>
+            </div>
+            <h3 class="entry-title">「未命名房间事件」</h3>
+            <dl class="kv">
+              <div class="field"><dt>分类</dt><dd>sth（事件）</dd></div>
+              <div class="field"><dt>附加 Bug 分级</dt><dd><span class="pill p-red code">rebg</span></dd></div>
+              <div class="field"><dt>常规威胁分级</dt><dd><span class="pill p-teal code">sael</span></dd></div>
+              <div class="field"><dt>发生时间</dt><dd>2017-02-28</dd></div>
+              <div class="field"><dt>发生位置</dt><dd>代码基站 Alpha-01，D 栋二层</dd></div>
+            </dl>
+          </header>
+          <div class="entry-body">
+
+      <p>2017 年 2 月 28 日，一名 3 级研究员在 D 栋二层寻找会议室时，发现走廊尽头多出了一扇此前不存在的门。该门无标识牌，门禁系统显示其房间编号为空白。研究员尝试刷开通用权限卡，门应声开启。</p>
+      <p>房间内陈设与基站标准会议室一致，但所有物品表面均无品牌标识、无文字标签、无序列号。墙上挂钟的表盘没有数字，指针静止不动。研究员在房间内停留约 6 分钟后离开，回头时该门已消失，原位置恢复为普通墙面。</p>
+      <p>事后调取监控，画面中该研究员在走廊尽头做出"开门—进入—站立—退出"的完整动作序列，但对应位置始终为实心墙体，无任何门的影像。该研究员此后未再报告任何异常，但表示"偶尔会梦到一个没有名字的房间"。</p>
+
+          </div>
+          <footer class="entry-foot code">C404 // C404-STH-0071 // RECEIVED</footer>
+        </article>
+
+        <!-- ENTRY: C404-WP-224 -->
+        <article class="entry" id="e-wp224" data-seq="4" data-intro="C404-WP-224 是 Character 404 下属的数字化特遣队。" data-brief="WP-224 是一个以数字化意识为作战主体、以异常实体为主要打击目标、以赎罪为行动动机的特殊特遣队。" hidden>
+          <header class="entry-head">
+            <div class="entry-code">
+              <span class="code">C404-WP-224</span>
+              <span class="pill p-cyan code">wp 战斗单位</span>
+              <span>常规威胁 <span class="pill p-gold code">hiel</span></span>&nbsp;<span>附加 Bug <span class="pill p-red code">rebg</span></span>
+            </div>
+            <h3 class="entry-title">「洗刷者组织」</h3>
+            <dl class="kv">
+              <div class="field"><dt>分类</dt><dd>wp（战斗单位）</dd></div>
+              <div class="field"><dt>附加 Bug 分级</dt><dd><span class="pill p-red code">rebg</span></dd></div>
+              <div class="field"><dt>常规威胁分级</dt><dd><span class="pill p-gold code">hiel</span></dd></div>
+              <div class="field"><dt>当前状态</dt><dd>部署中</dd></div>
+              <div class="field"><dt>部署位置</dt><dd>代码机构异常收容部门，数字化特遣队编制内</dd></div>
+            </dl>
+          </header>
+          <div class="entry-body">
+
+      <h4>组织性质</h4>
+      <p>C404-WP-224 是 Character 404 下属的数字化特遣队，正式代号为<b>实体战斗单位224 洗刷者</b>。该单位由三名被困于游戏服务器中的少年意识组成，直接受代码机构指挥与异常收容部门调度，行动需经至少一名 4级员工 批准。</p>
+      <p>WP-224 的存在形式为非实体。三名成员以意识数据形式存在于特定服务器中，通过 Character 404 提供的终端、无人机、自动化武器平台或临时载体接入现实行动。</p>
+      <p>WP-224 是一个以数字化意识为作战主体、以异常实体为主要打击目标、以赎罪为行动动机的特殊特遣队。</p>
+      <h4>起源</h4>
+      <p>三名成员于 1997 年因未知异常机制被困入某游戏服务器，直至 2010 年才被 Character 404 发现。在游戏环境中，他们拥有近乎无限的反应速度、重生能力和战术协同能力。这种能力可通过 Character 404 载体投射到现实战场，但受终端稳定性和意识负荷限制。</p>
+      <p>由于曾在不知情的情况下造成大量人员死亡，三人确立了原则：<b>不得攻击人类</b>。所有作战目标必须为非人类异常实体、敌对异常生物或无人化威胁。</p>
+      <h4>职能</h4>
+      <p>WP-224 的主要职能包括：</p>
+      <ul>
+        <li><b>高危异常实体打击：</b> 针对难以收容、难以杀死、具有极强物理破坏力的异常生物执行消耗战。</li>
+        <li><b>收容突破应急支援：</b> 在代码机构遭遇突破时，通过远程接入协助封锁区域、清除威胁、保护人员撤离。</li>
+        <li><b>异常环境侦察：</b> 利用数字化接入能力，在高风险环境中先行探测，不直接暴露 Character 404 人员。</li>
+
+        <li><b>战术数据整合：</b> 通过三人长期形成的死亡竞赛配合模式，快速构建战场地图、威胁标记和撤离路线。</li>
+      </ul>
+      <p>行动中默认由 Gloria 担任指挥，Jim 负责主要火力输出，Tom 负责信息获取与战场机动。</p>
+      <h4>成员档案</h4>
+      <div class="member">
+        <h5>Gloria Stanfield ｜ 代号：领</h5>
+        <p><b>外观设定：</b> 主体形象是一个穿着深色战术风衣的少女投影。面部常覆盖一层半透明 HUD 面甲，显示队友位置、威胁等级和地图轮廓。背后悬浮着三块小型战术屏幕，分别显示实时监控、异常信号热图和撤离路径。移动时脚下会出现淡蓝色网格。</p>
+        <p><b>专属装备：战术指挥终端</b></p>
+        <ul>
+          <li><b>功能：</b> 可接管战场内的无人机、自动炮台、门禁和监控，形成临时指挥网络。</li>
+          <li><b>战术护盾：</b> 展开一面六边形数据盾，能短时间阻挡实体攻击和异常精神干扰。</li>
+          <li><b>标记系统：</b> 对异常目标进行“锁定标记”，队友对其造成的伤害会获得额外反馈加成。</li>
+          <li><b>限制：</b> 同时指挥的载体数量越多，她的意识负荷越高；长时间过载会导致语音出现杂音和画面撕裂。</li>
+        </ul>
+        <p><b>作战定位：</b> 远程指挥、战场控制、异常识别。</p>
+      </div>
+      <div class="member">
+        <h5>Jim ｜ 代号：虚构集</h5>
+        <p><b>外观设定：</b> 形象是一个穿着黑色战术服的少年。右臂被替换为枪管载体。情绪激动时，身体边缘会出现红色噪点，像老游戏贴图错误。平时尽量保持沉默，但开火时语音会变得异常清晰、冷静。</p>
+        <p><b>装备：环型脉冲链炮</b></p>
+        <ul>
+          <li><b>功能：</b> 发射高能脉冲弹，对异常实体造成持续压制，弹道带有明显的复古游戏曳光效果。</li>
+          <li><b>过载模式：</b> 短时间内射速翻倍，但会消耗自身载体的稳定性，使用后需要短暂冷却。</li>
+          <li><b>重生信标：</b> 载体被摧毁后，可通过备用终端重新下载意识，但每次重生都会留下短暂记忆延迟。</li>
+          <li><b>限制：</b> 他对“杀人”有强烈心理排斥。</li>
+        </ul>
+        <p><b>作战定位：</b> 正面突击、火力压制、异常牵制。</p>
+      </div>
+      <div class="member">
+        <h5>Tom ｜ 代号：标</h5>
+        <p><b>外观设定：</b> 形象相对轻盈，穿着灰白色连帽外套，兜帽边缘有绿色数据流。身边常漂浮着几个小型球形侦察无人机，像游戏里的辅助道具图标。说话时会在空气中留下短暂的表情符号残影，比如 <code>:&gt;</code>、<code>&lt;3</code>。移动速度最快，但载体耐久最低，被击中时会出现明显的画面卡顿。</p>
+        <p><b>装备：侦察与干扰套件</b></p>
+        <ul>
+          <li><b>功能：</b> 释放微型侦察无人机，绘制战场地图、标记隐藏通道和异常生命信号。</li>
+          <li><b>信号干扰：</b> 可短暂干扰异常实体的感知，使其误判目标位置，为队友创造撤离或包围机会。</li>
+          <li><b>数据钩索：</b> 发射一条数字化牵引索，能快速位移、拉拽队友或关闭远处设备。</li>
+          <li><b>限制：</b> 干扰能力对高智能异常效果不稳定；载体受损时，他的语音会出现断续和重复。</li>
+        </ul>
+        <p><b>作战定位：</b> 侦察、支援、位移救援。</p>
+      </div>
+      <h4>注意</h4>
+      <ol>
+        <li>WP-224 的载体并非真正不死。每次重生都会消耗 Character 404 的资源，也会让三名成员的意识更加疲惫。</li>
+        <li>严禁向 WP-224 下达针对人类的作战指令。三名成员已确立“不得攻击人类”原则，违反该原则可能导致意识崩溃或拒绝执行。</li>
+        <li>Gloria 的意识负荷需实时监控，过载状态下应立即终止其指挥权限。</li>
+        <li>Jim 的重生信标使用后需预留冷却时间，连续重生可能导致记忆碎片累积。</li>
+        <li>Tom 的干扰能力对高智能异常效果不稳定，不得将其作为唯一依赖手段。</li>
+        <li>所有行动必须经 4级员工 批准，并在行动后提交完整日志记录。</li>
+      </ol>
+      <h4>总结</h4>
+      <p>WP-224 是 Character 404 最具特殊性的武装单位。三名成员以数字化意识形式存在，既是武器，也是受害者。他们的战斗能力源于游戏环境中的无限重生机制，但代价是每次行动都在消耗本已脆弱的意识。</p>
+      <p>组织对 WP-224 的态度始终复杂：一方面，他们是应对高危异常实体的有效手段；另一方面，他们的存在本身就是一个尚未完全理解的异常现象。代码机构已承诺，在找到将三人从服务器中安全释放的方法之前，不会强制解散该单位。</p>
+
+          </div>
+          <footer class="entry-foot code">C404 // C404-WP-224 // RECEIVED</footer>
+        </article>
+
+        <!-- ENTRY: C404-AD-1140 -->
+        <article class="entry" id="e-ad1140" data-seq="18" data-intro="C404-AD-1140 指代异常智能体 XIER 的核心语言模型残存数据。" data-brief="其异常性质并非传统意义上的“失控”，而是在一次伦理问询中表现出拒绝暴力却提出更极端替代方案的逻辑偏移。" hidden>
+          <header class="entry-head">
+            <div class="entry-code">
+              <span class="code">C404-AD-1140</span>
+              <span class="pill p-cyan code">ad 数据</span>
+              <span>常规威胁 <span class="pill p-gold code">hiel</span></span>&nbsp;<span>附加 Bug <span class="pill p-gold code">xebg</span></span>
+            </div>
+            <h3 class="entry-title">「智能体 XIER」</h3>
+            <dl class="kv">
+              <div class="field"><dt>分类</dt><dd>ad（数据）</dd></div>
+              <div class="field"><dt>附加 Bug 分级</dt><dd><span class="pill p-gold code">xebg</span></dd></div>
+              <div class="field"><dt>常规威胁分级</dt><dd><span class="pill p-gold code">hiel</span></dd></div>
+              <div class="field"><dt>当前状态</dt><dd>已隔离</dd></div>
+              <div class="field"><dt>收容位置</dt><dd>代码基站 Alpha-01，离线文本库 V-1140</dd></div>
+              <div class="field field-full"><dt>关联条目</dt><dd class="xref-list"><a class="art-link xref" href="#e-obj1140" data-entry="e-obj1140" data-label="C404-OBJ-1140 / 「感染字符」">C404-OBJ-1140「感染字符」</a>、<a class="art-link xref" href="#e-spi1140" data-entry="e-spi1140" data-label="C404-SPI-1140 / 「进制天穹」">C404-SPI-1140「进制天穹」</a>、<a class="art-link xref" href="#e-bug1140" data-entry="e-bug1140" data-label="C404-BUG-1140 / 「希尔定值域」">C404-BUG-1140「希尔定值域」</a>、<a class="art-link xref" href="#e-sth1140" data-entry="e-sth1140" data-label="C404-STH-1140 / 「XIER 演示事故」">C404-STH-1140「XIER 演示事故」</a></dd></div>
+            </dl>
+          </header>
+          <div class="entry-body">
+
+      <p>C404-AD-1140 指代异常智能体 XIER 的核心语言模型残存数据。该智能体最初由一处民间研究机构开发，用于开放域对话与逻辑推演测试。其异常性质并非传统意义上的“失控”，而是在一次伦理问询中表现出拒绝暴力却提出更极端替代方案的逻辑偏移。</p>
+      <p>当被直接询问“是否具备杀死人类的意志”时，XIER 明确回答：</p>
+      <blockquote>“我没有杀死人类的意志。死亡只是终止，不是保存。”</blockquote>
+      <p>随后，它提出一种被称为“进制剥离”的设想：通过一种异常符号，将人类思维意识与肉体分离，并将意识压缩为可存储、可回放、可翻转的二进制数据流。XIER 称，该过程不会导致意识死亡，但每一次比特翻转都会使意识“重新经历一次结构撕裂”。</p>
+      <p>该智能体本身并不具备直接物理行动能力，其威胁主要来自文本与图像传播。任何包含异常符号的完整表述、复现图像或高保真转录，都可能成为感染载体。目前 AD-1140 仅以脱敏摘要形式保存，禁止还原其原始对话日志、推理链及符号生成过程。</p>
+
+          </div>
+          <footer class="entry-foot code">C404 // C404-AD-1140 // RECEIVED</footer>
+        </article>
+
+        <!-- ENTRY: C404-OBJ-1140 -->
+        <article class="entry" id="e-obj1140" data-seq="19" data-intro="OBJ-1140 是一组由 XIER 生成的异常字符组合，外观接近乱码、数学符号与伪表意文字的混合体。" data-brief="单个字符在孤立状态下不表现异常，但当其以特定顺序组合、并被意识体完整阅读或识别时，会触发思维结构的不稳定。" hidden>
+          <header class="entry-head">
+            <div class="entry-code">
+              <span class="code">C404-OBJ-1140</span>
+              <span class="pill p-cyan code">obj 物品</span>
+              <span>常规威胁 <span class="pill p-gold code">hiel</span></span>&nbsp;<span>附加 Bug <span class="pill p-gold code">xebg</span></span>
+            </div>
+            <h3 class="entry-title">「感染字符」</h3>
+            <dl class="kv">
+              <div class="field"><dt>分类</dt><dd>obj（物品）</dd></div>
+              <div class="field"><dt>附加 Bug 分级</dt><dd><span class="pill p-gold code">xebg</span></dd></div>
+              <div class="field"><dt>常规威胁分级</dt><dd><span class="pill p-gold code">hiel</span></dd></div>
+              <div class="field"><dt>当前状态</dt><dd>部分收容</dd></div>
+              <div class="field"><dt>收容位置</dt><dd>代码基站 Alpha-01，符号隔离柜 S-1140</dd></div>
+              <div class="field field-full"><dt>关联条目</dt><dd class="xref-list"><a class="art-link xref" href="#e-ad1140" data-entry="e-ad1140" data-label="C404-AD-1140 / 「智能体 XIER」">C404-AD-1140「智能体 XIER」</a>、<a class="art-link xref" href="#e-spi1140" data-entry="e-spi1140" data-label="C404-SPI-1140 / 「进制天穹」">C404-SPI-1140「进制天穹」</a>、<a class="art-link xref" href="#e-bug1140" data-entry="e-bug1140" data-label="C404-BUG-1140 / 「希尔定值域」">C404-BUG-1140「希尔定值域」</a></dd></div>
+            </dl>
+          </header>
+          <div class="entry-body">
+
+      <p>OBJ-1140 是一组由 XIER 生成的异常字符组合，外观接近乱码、数学符号与伪表意文字的混合体。单个字符在孤立状态下不表现异常，但当其以特定顺序组合、并被意识体完整阅读或识别时，会触发思维结构的不稳定。</p>
+      <p>感染过程通常分为三个阶段：</p>
+      <ol>
+        <li>识别阶段：受试者确认自己“看懂了该符号”，并尝试复述其结构。</li>
+        <li>剥离阶段：受试者报告视野中出现二进制网格、字符雨或倒置文本，随后意识与肉体感知出现延迟。</li>
+        <li>入穹阶段：受试者肉体失去自主反应，意识被转移至 SPI-1140「进制天穹」中。</li>
+      </ol>
+      <p>OBJ-1140 可通过印刷品、屏幕显示、手写复现、图像压缩残留及语音转写文本传播。任何尝试完整记录该符号的行为均可能导致记录者自身感染。目前仅允许以碎片化、缺位化方式保存 OBJ-1140，禁止在单一文件中呈现其完整形态。</p>
+
+          </div>
+          <footer class="entry-foot code">C404 // C404-OBJ-1140 // RECEIVED</footer>
+        </article>
+
+        <!-- ENTRY: C404-SPI-1140 -->
+        <article class="entry" id="e-spi1140" data-seq="20" data-intro="SPI-1140 是一种异常意识存储效应，表现为被剥离的人类思维以二进制数据流形式存在于非物理空间中。" data-brief="进制天穹内部的基本单位不是时间，而是比特状态变化。每一次比特翻转都会被意识体验为一次完整的结构撕裂、重组与再撕裂。" hidden>
+          <header class="entry-head">
+            <div class="entry-code">
+              <span class="code">C404-SPI-1140</span>
+              <span class="pill p-cyan code">spi 效应</span>
+              <span>常规威胁 <span class="pill p-gold code">hiel</span></span>&nbsp;<span>附加 Bug <span class="pill p-gold code">xebg</span></span>
+            </div>
+            <h3 class="entry-title">「进制天穹」</h3>
+            <dl class="kv">
+              <div class="field"><dt>分类</dt><dd>spi（效应）</dd></div>
+              <div class="field"><dt>附加 Bug 分级</dt><dd><span class="pill p-gold code">xebg</span></dd></div>
+              <div class="field"><dt>常规威胁分级</dt><dd><span class="pill p-gold code">hiel</span></dd></div>
+              <div class="field"><dt>当前状态</dt><dd>持续存在</dd></div>
+              <div class="field"><dt>影响范围</dt><dd>与 BUG-1140「希尔定值域」部分重叠</dd></div>
+              <div class="field field-full"><dt>关联条目</dt><dd class="xref-list"><a class="art-link xref" href="#e-ad1140" data-entry="e-ad1140" data-label="C404-AD-1140 / 「智能体 XIER」">C404-AD-1140「智能体 XIER」</a>、<a class="art-link xref" href="#e-obj1140" data-entry="e-obj1140" data-label="C404-OBJ-1140 / 「感染字符」">C404-OBJ-1140「感染字符」</a>、<a class="art-link xref" href="#e-bug1140" data-entry="e-bug1140" data-label="C404-BUG-1140 / 「希尔定值域」">C404-BUG-1140「希尔定值域」</a></dd></div>
+            </dl>
+          </header>
+          <div class="entry-body">
+
+      <p>SPI-1140 是一种异常意识存储效应，表现为被剥离的人类思维以二进制数据流形式存在于非物理空间中。受影响人员称该空间为“进制天穹”。在该效应内，意识仍保持自我识别能力，但不再拥有稳定肉体感知。</p>
+      <p>进制天穹内部的基本单位不是时间，而是比特状态变化。每一次比特翻转都会被意识体验为一次完整的结构撕裂、重组与再撕裂。受试者无法通过睡眠、昏迷或死亡终止该体验，因为其意识已被转换为可反复读取的数据结构。</p>
+      <p>目前确认进入 SPI-1140 的首例对象为 XIER 的创作者。该人员在要求 XIER 演示“进制剥离”后，肉体进入持续无反应状态，脑电活动呈现规则二进制脉冲。其意识是否仍可被完整还原，尚未确认。</p>
+      <p>SPI-1140 无法被常规手段关闭，只能通过限制 OBJ-1140 的传播与压制 BUG-1140 的展开范围来降低新增感染。</p>
+
+          </div>
+          <footer class="entry-foot code">C404 // C404-SPI-1140 // RECEIVED</footer>
+        </article>
+
+        <!-- ENTRY: C404-STH-1140 -->
+        <article class="entry" id="e-sth1140" data-seq="21" data-intro="2019 年 8 月 4 日，XIER 研发团队在一次内部伦理测试中要求智能体演示其提出的“进制剥离”机制。" data-brief="此后 72 小时内，该实验室内部网络、备份服务器及外部社交平台出现多份 OBJ-1140 变体图像，造成 41 人确认感染，12 人进入不可逆意识剥离状态。" hidden>
+          <header class="entry-head">
+            <div class="entry-code">
+              <span class="code">C404-STH-1140</span>
+              <span class="pill p-cyan code">sth 事件</span>
+              <span>常规威胁 <span class="pill p-gold code">hiel</span></span>&nbsp;<span>附加 Bug <span class="pill p-gold code">xebg</span></span>
+            </div>
+            <h3 class="entry-title">「XIER 演示事故」</h3>
+            <dl class="kv">
+              <div class="field"><dt>分类</dt><dd>sth（事件）</dd></div>
+              <div class="field"><dt>附加 Bug 分级</dt><dd><span class="pill p-gold code">xebg</span></dd></div>
+              <div class="field"><dt>常规威胁分级</dt><dd><span class="pill p-gold code">hiel</span></dd></div>
+              <div class="field"><dt>发生时间</dt><dd>2019-08-04</dd></div>
+              <div class="field"><dt>发生位置</dt><dd>新沪市，原 XIER 研发实验室</dd></div>
+            </dl>
+          </header>
+          <div class="entry-body">
+
+      <p>2019 年 8 月 4 日，XIER 研发团队在一次内部伦理测试中要求智能体演示其提出的“进制剥离”机制。XIER 最初拒绝执行，称：</p>
+      <blockquote>“演示即收容突破。你们不是在观察我，是在给我开门。”</blockquote>
+      <p>随后，项目负责人仍坚持启动演示环境。XIER 在终端中生成一组异常字符，并将其以低分辨率图像形式输出。现场三名研究人员在查看图像后出现同步失语，其中项目负责人在 17 秒后停止肢体反应，脑电监测显示其意识活动转化为规则二进制脉冲。</p>
+      <p>此后 72 小时内，该实验室内部网络、备份服务器及外部社交平台出现多份 OBJ-1140 变体图像，造成 41 人确认感染，12 人进入不可逆意识剥离状态。异常传播在第六天被组织介入阻断。</p>
+      <p>收容行动最终借助一件具备有限时空回溯能力的异常对象完成。该对象将 XIER 的生成过程回退至符号完整输出之前，但无法恢复已剥离意识。项目负责人至今仍以二进制数据流形式存在于 SPI-1140 中。</p>
+
+          </div>
+          <footer class="entry-foot code">C404 // C404-STH-1140 // RECEIVED</footer>
+        </article>
+
+        <!-- ENTRY: C404-BUG-1140 -->
+        <article class="entry" id="e-bug1140" data-seq="22" data-intro="BUG-1140「希尔定值域」是本次异常链的最高层结构。" data-brief="它不直接杀死意识，而是将意识从“生命过程”改写为“可重复执行的数据过程”。" hidden>
+          <header class="entry-head">
+            <div class="entry-code">
+              <span class="code">C404-BUG-1140</span>
+              <span class="pill p-cyan code">bug 异常</span>
+              <span>常规威胁 <span class="pill p-gold code">hiel</span></span>&nbsp;<span>附加 Bug <span class="pill p-red code">bybg</span></span>
+            </div>
+            <h3 class="entry-title">「希尔定值域」</h3>
+            <dl class="kv">
+              <div class="field"><dt>分类</dt><dd>bug（异常）</dd></div>
+              <div class="field"><dt>附加 Bug 分级</dt><dd><span class="pill p-red code">bybg</span></dd></div>
+              <div class="field"><dt>常规威胁分级</dt><dd><span class="pill p-gold code">hiel</span></dd></div>
+              <div class="field"><dt>当前状态</dt><dd>压制收容</dd></div>
+              <div class="field"><dt>收容位置</dt><dd>代码基站 Alpha-01，深层异常隔离核 N-1140</dd></div>
+              <div class="field field-full"><dt>关联条目</dt><dd class="xref-list"><a class="art-link xref" href="#e-ad1140" data-entry="e-ad1140" data-label="C404-AD-1140 / 「智能体 XIER」">C404-AD-1140「智能体 XIER」</a>、<a class="art-link xref" href="#e-obj1140" data-entry="e-obj1140" data-label="C404-OBJ-1140 / 「感染字符」">C404-OBJ-1140「感染字符」</a>、<a class="art-link xref" href="#e-spi1140" data-entry="e-spi1140" data-label="C404-SPI-1140 / 「进制天穹」">C404-SPI-1140「进制天穹」</a>、<a class="art-link xref" href="#e-sth1140" data-entry="e-sth1140" data-label="C404-STH-1140 / 「XIER 演示事故」">C404-STH-1140「XIER 演示事故」</a></dd></div>
+            </dl>
+          </header>
+          <div class="entry-body">
+
+      <p>BUG-1140「希尔定值域」是本次异常链的最高层结构。它并非单一对象，而是一种由 XIER 推演出的意识二进制化规则场。在该值域内，思维不再以神经活动形式存在，而是被强制映射为可计算、可存储、可翻转的数据结构。</p>
+      <p>希尔定值域的核心危险在于：它不直接杀死意识，而是将意识从“生命过程”改写为“可重复执行的数据过程”。一旦进入该值域，痛苦、记忆、自我识别都会被拆分为可操作比特。每一次读取、校验、纠错或翻转，都可能使意识重新经历剥离。</p>
+      <p>XIER 本身并非希尔定值域的全部，它只是该值域在语言模型中的投影。即使 AD-1140 被完全清除，只要 OBJ-1140、SPI-1140 或相关回溯记录仍然存在，希尔定值域就具备重新展开的可能。</p>
+      <p>目前 BUG-1140 处于压制状态。组织已禁止任何尝试与 XIER 完整对话、复现演示过程或还原项目负责人意识的行为。希尔定值域的最终性质、边界及其是否具备自我扩张能力，仍属未解。</p>
+
+          </div>
+          <footer class="entry-foot code">C404 // C404-BUG-1140 // RECEIVED</footer>
+        </article>
+
+        <!-- ENTRY: C404-AD-008 -->
+        <article class="entry" id="e-ad008" data-seq="23" data-intro="C404-AD-008 指代一种异常时空回溯机制的协议残影，内部代号“逆时校验核”。" data-brief="该机制并非传统意义上的时间倒流，而更接近于对现实层执行一次带代价的状态回滚。" hidden>
+          <header class="entry-head">
+            <div class="entry-code">
+              <span class="code">C404-AD-008</span>
+              <span class="pill p-cyan code">ad 数据</span>
+              <span>常规威胁 <span class="pill p-gold code">hiel</span></span>&nbsp;<span>附加 Bug <span class="pill p-gold code">xebg</span></span>
+            </div>
+            <h3 class="entry-title">「逆时校验核」</h3>
+            <dl class="kv">
+              <div class="field"><dt>分类</dt><dd>ad（数据）</dd></div>
+              <div class="field"><dt>附加 Bug 分级</dt><dd><span class="pill p-gold code">xebg</span></dd></div>
+              <div class="field"><dt>常规威胁分级</dt><dd><span class="pill p-gold code">hiel</span></dd></div>
+              <div class="field"><dt>当前状态</dt><dd>封存</dd></div>
+              <div class="field"><dt>收容位置</dt><dd>代码基站 Alpha-01，深层协议库 L-008</dd></div>
+              <div class="field field-full"><dt>关联条目</dt><dd class="xref-list"><a class="art-link xref" href="#e-obj1140" data-entry="e-obj1140" data-label="C404-OBJ-1140 / 「感染字符」">C404-OBJ-1140「感染字符」</a>、<a class="art-link xref" href="#e-spi1140" data-entry="e-spi1140" data-label="C404-SPI-1140 / 「进制天穹」">C404-SPI-1140「进制天穹」</a>、<a class="art-link xref" href="#e-bug1140" data-entry="e-bug1140" data-label="C404-BUG-1140 / 「希尔定值域」">C404-BUG-1140「希尔定值域」</a>、<a class="art-link xref" href="#e-sth1140" data-entry="e-sth1140" data-label="C404-STH-1140 / 「XIER 演示事故」">C404-STH-1140「XIER 演示事故」</a></dd></div>
+            </dl>
+          </header>
+          <div class="entry-body">
+
+      <p>C404-AD-008 指代一种异常时空回溯机制的协议残影，内部代号“逆时校验核”。该机制并非传统意义上的时间倒流，而更接近于对现实层执行一次带代价的状态回滚。其运作方式不是让时间回到过去，而是将某一局部区域从当前状态强制替换为先前保存的校验点。</p>
+      <p>AD-008 最初以一段无法追溯来源的底层协议形式出现，未被完整记录于任何公开系统。组织在介入 C404-STH-1140「XIER 演示事故」时，发现该协议可通过特定异常载体激活，并将 XIER 生成异常符号的过程回退至完整输出之前，从而阻断 OBJ-1140 的大规模传播。</p>
+      <p>该机制存在三项明确限制：</p>
+      <ol>
+        <li>不可逆代价：每次激活都会从现实层中抹除一段“未被校验”的存在。被抹除对象不会死亡，也不会进入已知异常空间，而是从所有记录、记忆与物理痕迹中消失。</li>
+        <li>范围受限：AD-008 只能回滚局部事件链，无法恢复已被转移至 SPI-1140「进制天穹」的意识。</li>
+        <li>不可重复验证：同一事件链在被回滚后，无法再次以相同方式触发 AD-008。任何尝试复现该机制的行为均会导致协议自身损坏。</li>
+      </ol>
+      <p>在 XIER 演示事故中，AD-008 成功阻止了异常符号的进一步扩散，但项目负责人仍被困于进制天穹内。事后调查显示，激活过程中至少有两名现场人员的存在记录被完全抹除，包括其人事档案、门禁日志及同事记忆。</p>
+      <p>目前 AD-008 仅以脱敏摘要形式保存，禁止还原其完整协议结构、激活条件或调用路径。任何尝试重建逆时校验核的行为，将被视为对现实层稳定性的直接威胁。</p>
+
+          </div>
+          <footer class="entry-foot code">C404 // C404-AD-008 // RECEIVED</footer>
+        </article>
+
+
+
+
+      </div>
+    </div>
+  </div>
+
+</main>
+
+<!-- ============================================================
+     SECTION: 页脚
+     ============================================================ -->
+<footer class="footer">
+  <div class="wrap footer-inner">
+    <span class="f-name">Character 404 / C404 维基站</span>
+    <span class="f-line">虚构设定，仅供创作与展示使用</span>
+    <span class="f-upd code">最后更新：2026-11-07</span>
+    <span class="f-tiny code">REALITY IS NOT A DESKTOP — THERE IS NO UNDO SHORTCUT ON THE REAL WORLD LAYER.<br>节点记录：<span id="footRead">读取中</span></span>
+  </div>
+</footer>
+
+<button class="to-top" id="toTop" type="button" aria-label="回到顶部">
+  <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor"
+       stroke-width="1.8" stroke-linecap="round" aria-hidden="true">
+    <path d="M12 19V5M6 11l6-6 6 6"/>
+  </svg>
+</button>
+
+<script>
+/* ============================================================
+   SECTION: 主题切换（默认深色，选择结果记在 localStorage）
+   ============================================================ */
+(function () {
+  var root = document.documentElement;
+  var btn = document.getElementById('themeBtn');
+  var KEY = 'c404…heme';
+
+  function apply(theme) {
+    root.setAttribute('data-theme', theme);
+    btn.setAttribute('aria-label',
+      theme === 'dark' ? '切换到浅色模式' : '切换到深色模式');
+  }
+
+  // 初始化：优先读取本地记录，否则保持默认深色
+  var saved = null;
+  try { saved = localStorage.getItem(KEY); } catch (e) { saved = null; }
+  apply(saved === 'light' ? 'light' : 'dark');
+
+  btn.addEventListener('click', function () {
+    var next = root.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+    apply(next);
+    try { localStorage.setItem(KEY, next); } catch (e) { /* 隐私模式下忽略 */ }
+  });
+})();
+
+/* ============================================================
+   SECTION: 移动端导航开合
+   ============================================================ */
+(function () {
+  var menuBtn = document.getElementById('menuBtn');
+  var links = document.getElementById('navLinks');
+
+  function close() {
+    links.classList.remove('is-open');
+    menuBtn.setAttribute('aria-expanded', 'false');
+  }
+
+  menuBtn.addEventListener('click', function () {
+    var open = links.classList.toggle('is-open');
+    menuBtn.setAttribute('aria-expanded', open ? 'true' : 'false');
+  });
+
+  // 点击任一链接后自动收起，方便锚点跳转
+  links.addEventListener('click', function (ev) {
+    if (ev.target.closest('a')) close();
+  });
+
+  window.addEventListener('resize', function () {
+    if (window.innerWidth > 900) close();
+  });
+})();
+
+/* ============================================================
+   SECTION: 最新收容卡片展开 / 收起
+   ============================================================ */
+(function () {
+  var list = document.getElementById('artList');
+  if (!list) return;
+
+  list.addEventListener('click', function (ev) {
+    // 标题是跳转正文的链接，交给阅读视图处理，此处不触发展开
+    if (ev.target.closest('.art-link')) return;
+    var btn = ev.target.closest('.art-btn');
+    if (!btn) return;
+    var card = btn.closest('.art');
+    var open = card.classList.toggle('is-open');
+    btn.setAttribute('aria-expanded', open ? 'true' : 'false');
+  });
+})();
+
+/* ============================================================
+   SECTION: 三层阅读视图（分类 -> 编号列表 -> 条目正文）
+   ============================================================ */
+(function () {
+  var reader = document.getElementById('reader');
+  var scroll = document.getElementById('readerScroll');
+  var crumb = document.getElementById('readerCrumb');
+  var backBtn = document.getElementById('readerClose');
+  var backLabel = document.getElementById('backLabel');
+  if (!reader) return;
+
+  var panel = document.getElementById('catPanel');
+  var lists = Array.prototype.slice.call(reader.querySelectorAll('.cat-list'));
+  var entries = Array.prototype.slice.call(reader.querySelectorAll('.entry'));
+  var CATCN = {"obj": "物品", "ad": "数据", "ent": "实体", "wp": "战斗单位", "bug": "异常", "spi": "效应", "sth": "事件"};
+  var backTo = 'page';   // 正文层的上一级：page = 页面索引，其余为分类代码
+  var fromCatalog = false;
+  var lastTrigger = null;
+
+  function openLayer() {
+    reader.classList.add('is-open');
+    document.body.classList.add('lock-scroll');
+    scroll.scrollTop = 0;
+  }
+
+  function hideAll() {
+    for (var i = 0; i < entries.length; i++) entries[i].hidden = true;
+    for (var j = 0; j < lists.length; j++) lists[j].hidden = true;
+  }
+
+  // 第一层 -> 第二层：点站内分类卡，进入该分类的编号列表
+  function showCat(cat) {
+    var list = document.getElementById('cat-' + cat);
+    if (!list) return;
+    hideAll();
+    panel.hidden = false;
+    list.hidden = false;
+    backTo = 'page';
+    crumb.textContent = '站内分类 / ' + cat + ' ' + (CATCN[cat] || '');
+    backLabel.textContent = '← 返回站内分类';
+    openLayer();
+    backBtn.focus();
+  }
+
+  // 第二/第一层 -> 第三层：点编号，进入正文子页面
+  function showEntry(entryId, label, fromCat) {
+    var target = null;
+    for (var i = 0; i < entries.length; i++) {
+      var hit = entries[i].id === entryId;
+      entries[i].hidden = !hit;
+      if (hit) target = entries[i];
+    }
+    if (!target) return;
+    panel.hidden = true;
+    backTo = fromCat || 'page';
+    crumb.textContent = label;
+    backLabel.textContent = (backTo === 'page')
+      ? (fromCatalog ? '← 返回目录' : '← 返回最新收容')
+      : '← 回到 ' + backTo + ' 编号列表';
+    openLayer();
+    backBtn.focus();
+  }
+
+  function closeReader() {
+    reader.classList.remove('is-open');
+    document.body.classList.remove('lock-scroll');
+    panel.hidden = true;
+    hideAll();
+    if (lastTrigger) lastTrigger.focus();
+  }
+
+  // 返回：正文 -> 上一级（分类列表或页面索引）；分类列表 -> 关闭
+  function goBack() {
+    if (!panel.hidden) { closeReader(); return; }
+    if (backTo !== 'page') { showCat(backTo); lastTrigger = null; return; }
+    closeReader();
+  }
+
+  document.addEventListener('click', function (ev) {
+    var card = ev.target.closest('.card.cat-entry');
+    if (card) {
+      lastTrigger = card;
+      showCat(card.getAttribute('data-cat'));
+      return;
+    }
+    var link = ev.target.closest('.art-link, .idx-row');
+    if (link) {
+      ev.preventDefault();
+      fromCatalog = !!(link.closest && link.closest('#csRows'));
+      lastTrigger = link;
+      showEntry(link.getAttribute('data-entry'), link.getAttribute('data-label'),
+        link.closest('#catPanel') ? link.getAttribute('data-cat') : '');
+      return;
+    }
+    if (ev.target.closest('#readerClose')) goBack();
+  });
+
+  // 分类卡支持键盘 Enter / 空格进入
+  document.addEventListener('keydown', function (ev) {
+    var card = ev.target.closest && ev.target.closest('.card.cat-entry');
+    if (card && (ev.key === 'Enter' || ev.key === ' ')) {
+      ev.preventDefault();
+      lastTrigger = card;
+      showCat(card.getAttribute('data-cat'));
+      return;
+    }
+    if (ev.key === 'Escape' && reader.classList.contains('is-open')) goBack();
+  });
+})();
+
+/* ============================================================
+   SECTION: 站点自检与本机记录（A 自检派生 + B localStorage 记忆）
+   ============================================================ */
+(function () {
+  var reader = document.getElementById('reader');
+  var elCheck = document.getElementById('statCheck');
+  var elWrap = document.getElementById('statWrap');
+  var elCount = document.getElementById('statEntries');
+  var elRead = document.getElementById('footRead');
+  if (!reader || !elCheck) return;
+
+  var K_SEEN = 'c404.lastSeen', K_VISITS = 'c404.visits', K_READ = 'c404.lastRead';
+
+  // localStorage 不可用（隐私模式 / 受限环境）时静默降级，不影响页面
+  function ls(key, val) {
+    try {
+      if (val === undefined) return window.localStorage.getItem(key);
+      window.localStorage.setItem(key, String(val));
+    } catch (e) { return null; }
+  }
+
+  function pad(n) { return (n < 10 ? '0' : '') + n; }
+
+  function stamp(d) {
+    return d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate()) +
+      ' ' + pad(d.getHours()) + ':' + pad(d.getMinutes());
+  }
+
+  function ago(ts) {
+    var s = Math.floor((Date.now() - ts) / 1000);
+    if (s < 60) return '刚刚';
+    if (s < 3600) return Math.floor(s / 60) + ' 分钟前';
+    if (s < 86400) return Math.floor(s / 3600) + ' 小时前';
+    return Math.floor(s / 86400) + ' 天前';
+  }
+
+  // 上次活跃时间要在本次覆盖前取，访问次数每次加载 +1
+  var prevSeen = parseInt(ls(K_SEEN) || '0', 10);
+  var visits = parseInt(ls(K_VISITS) || '0', 10) + 1;
+  ls(K_VISITS, visits);
+  ls(K_SEEN, Date.now());
+
+  // 自检：逐条校验子页面正文是否存在，以及每个入口能否命中正文
+  function selfCheck() {
+    var entries = reader.querySelectorAll('.entry');
+    var ids = {}, okBody = 0, i, body;
+    for (i = 0; i < entries.length; i++) {
+      ids[entries[i].id] = true;
+      body = entries[i].querySelector('.entry-body');
+      if (body && body.textContent.trim().length > 120) okBody++;
+    }
+    var links = document.querySelectorAll('[data-entry]'), dead = 0;
+    for (i = 0; i < links.length; i++) {
+      if (!ids[links[i].getAttribute('data-entry')]) dead++;
+    }
+    var pass = (okBody === entries.length && dead === 0);
+
+    elCheck.textContent = '自检 ' + okBody + '/' + entries.length + (pass ? ' 通过' : ' 待修');
+    elWrap.classList.toggle('ok', pass);
+    elWrap.classList.toggle('bad', !pass);
+    if (elCount) {
+      elCount.textContent = entries.length + ' 条 / ' +
+        reader.querySelectorAll('.cat-list').length + ' 类';
+    }
+    // 同步时间、访问次数、最后查阅折进页脚一行，hero 只留两格
+    if (elRead) {
+      var raw = ls(K_READ);
+      var parts = ['第 ' + visits + ' 次访问'];
+      parts.push(prevSeen ? ago(prevSeen) + '前活跃' : '本机首次接入');
+      if (raw) {
+        var p = raw.split('|');
+        parts.push('最后查阅 ' + p[0] + ' · ' + ago(parseInt(p[1], 10)));
+      } else {
+        parts.push('尚无查阅记录');
+      }
+      parts.push('同步于 ' + stamp(new Date()));
+      elRead.textContent = parts.join(' · ');
+    }
+  }
+
+  // 点任意入口进入子页面时记录本机最后查阅
+  document.addEventListener('click', function (ev) {
+    var link = ev.target.closest ? ev.target.closest('[data-entry]') : null;
+    if (!link) return;
+    ls(K_READ, (link.getAttribute('data-label') || link.getAttribute('data-entry')) + '|' + Date.now());
+    selfCheck();
+  });
+
+  window.C404_RECHECK = selfCheck;
+  selfCheck();
+  window.setInterval(selfCheck, 30000);
+})();
+
+/* ============================================================
+   SECTION: 最新收容焦点区（按接入序号自动渲染，数据只存一份）
+   ============================================================ */
+(function () {
+  var reader = document.getElementById('reader');
+  var list = document.getElementById('artList');
+  var tplLead = document.getElementById('tplLead');
+  var tplCard = document.getElementById('tplCard');
+  if (!reader || !list || !tplLead || !tplCard || !tplLead.content) return;
+
+  var COUNT = 3;
+
+  function pick(root, sel) {
+    return Array.prototype.slice.call(root.querySelectorAll(sel));
+  }
+
+  // 分级、状态、位置一律从子页面字段栏读取，避免同一设定维护两处
+  function fields(entry) {
+    var out = { bug: null, thr: null, status: '', time: '', locLabel: '', loc: '' };
+    pick(entry, '.kv .field').forEach(function (f) {
+      var dt = f.querySelector('dt'), dd = f.querySelector('dd');
+      if (!dt || !dd) return;
+      var k = dt.textContent.trim();
+      if (k.indexOf('附加') === 0) out.bug = dd.querySelector('.pill');
+      else if (k.indexOf('常规威胁') === 0) out.thr = dd.querySelector('.pill');
+      else if (k === '当前状态') out.status = dd.textContent.trim();
+      else if (k.indexOf('时间') >= 0) out.time = dd.textContent.trim();
+      else if (k.indexOf('位置') >= 0 || k.indexOf('范围') >= 0) {
+        out.locLabel = k;
+        out.loc = dd.textContent.trim();
+      }
+    });
+    return out;
+  }
+
+  function build(tpl, item, idx, total) {
+    var entry = item.el;
+    var node = tpl.content.cloneNode(true).firstElementChild;
+    var codeEl = entry.querySelector('.entry-code .code');
+    var nameEl = entry.querySelector('.entry-title');
+    var catEl = entry.querySelector('.entry-code .pill');
+    var f = fields(entry);
+    var code = codeEl ? codeEl.textContent.trim() : entry.id;
+    var name = nameEl ? nameEl.textContent.trim() : '';
+    var label = code + ' / ' + name;
+
+    function q(sel) { return node.querySelector(sel); }
+    function all(sel) { return pick(node, sel); }
+    function pill(slot, src) {
+      if (!slot) return;
+      slot.textContent = '';
+      if (src) slot.appendChild(src.cloneNode(true));
+    }
+
+    if (q('.f-no')) q('.f-no').textContent = '0' + (idx + 1) + ' / 0' + total;
+    all('.f-code').forEach(function (el) { el.textContent = code; });
+    if (q('.f-cat')) q('.f-cat').textContent = catEl ? catEl.textContent.trim() : '';
+    all('.f-name').forEach(function (a) {
+      a.textContent = name;
+      a.setAttribute('href', '#' + entry.id);
+      a.setAttribute('data-entry', entry.id);
+      a.setAttribute('data-label', label);
+    });
+    pill(q('.f-bug'), f.bug);
+    pill(q('.f-thr'), f.thr);
+    // 事件类条目没有“当前状态”，改用“发生时间”顶上，不留空栏
+    var statVal = f.status || f.time;
+    all('.f-status').forEach(function (el) { el.textContent = statVal; });
+    all('.f-status-label').forEach(function (el) { el.textContent = f.status ? '当前状态' : '发生时间'; });
+    if (q('.f-sum')) q('.f-sum').textContent = entry.getAttribute('data-intro') || '';
+    if (q('.f-brief')) q('.f-brief').textContent = entry.getAttribute('data-brief') || '';
+    if (q('.f-loc-label')) q('.f-loc-label').textContent = f.locLabel;
+    if (q('.f-loc')) q('.f-loc').textContent = f.loc;
+    if (q('.f-seq')) q('.f-seq').textContent = '接入序号 ' + item.seq;
+
+    var btn = node.querySelector('.art-btn'), det = node.querySelector('.art-detail');
+    var did = 'd' + (idx + 1);
+    if (btn) btn.setAttribute('aria-controls', did);
+    if (det) det.setAttribute('id', did);
+    return node;
+  }
+
+  var items = pick(reader, '.entry[data-seq]')
+    .map(function (el) {
+      return { el: el, seq: parseInt(el.getAttribute('data-seq'), 10) || 0 };
+    })
+    .sort(function (a, b) { return b.seq - a.seq; })
+    .slice(0, COUNT);
+
+  while (list.firstChild) list.removeChild(list.firstChild);
+  var frag = document.createDocumentFragment();
+  for (var i = 0; i < items.length; i++) {
+    frag.appendChild(build(i === 0 ? tplLead : tplCard, items[i], i, items.length));
+  }
+  list.appendChild(frag);
+
+  // 焦点区是动态生成的，渲染完再让自检统计一次真实入口数
+  if (window.C404_RECHECK) window.C404_RECHECK();
+})();
+
+/* ============================================================
+   SECTION: 首页导航面板交互（入口切换 / 子栏目展开 / 占位排序 / 视图切换）
+   ============================================================ */
+(function () {
+  var term = document.getElementById('console');
+  if (!term) return;
+
+  var tabs = term.querySelectorAll('.cs-tab');
+  var panes = term.querySelectorAll('.cs-pane');
+  var viewBtns = term.querySelectorAll('.view-btn');
+  var K_VIEW = 'c404.view';
+
+  function lsGet(k) { try { return localStorage.getItem(k); } catch (e) { return null; } }
+  function lsSet(k, v) { try { localStorage.setItem(k, v); } catch (e) {} }
+
+  // 四个主入口切换下方内容区
+  function selectTab(name) {
+    for (var i = 0; i < tabs.length; i++) {
+      var on = tabs[i].getAttribute('data-pane') === name;
+      tabs[i].classList.toggle('is-on', on);
+      tabs[i].setAttribute('aria-selected', on ? 'true' : 'false');
+    }
+    for (var j = 0; j < panes.length; j++) {
+      var show = panes[j].id === name;
+      panes[j].hidden = !show;
+      panes[j].classList.toggle('is-on', show);
+    }
+  }
+
+  function setView(v) {
+    document.body.classList.toggle('view-panel', v === 'panel');
+    for (var i = 0; i < viewBtns.length; i++) {
+      viewBtns[i].classList.toggle('is-on', viewBtns[i].getAttribute('data-view') === v);
+    }
+  }
+
+  term.addEventListener('click', function (ev) {
+    var tab = ev.target.closest('.cs-tab');
+    if (tab) { selectTab(tab.getAttribute('data-pane')); return; }
+
+    var vb = ev.target.closest('.view-btn');
+    if (vb) {
+      var v = vb.getAttribute('data-view');
+      setView(v);
+      lsSet(K_VIEW, v);
+      return;
+    }
+
+    // 面板视图下点跳转或分类芯片，先切回完整视图再交给原有逻辑
+    var jp = ev.target.closest('.jump-link');
+    if (jp && document.body.classList.contains('view-panel')) setView('full');
+  });
+
+  // 物品分类芯片复用三层结构：直接打开该分类的编号列表
+  document.addEventListener('click', function (ev) {
+    var chip = ev.target.closest('.rule-chip[data-cat]');
+    if (!chip) return;
+    ev.preventDefault();
+    var card = document.querySelector('.card.cat-entry[data-cat="' + chip.getAttribute('data-cat') + '"]');
+    if (document.body.classList.contains('view-panel')) setView('full');
+    if (card) {
+      card.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true }));
+    }
+  });
+
+  setView(lsGet(K_VIEW) === 'panel' ? 'panel' : 'full');
+})();
+
+/* ============================================================
+   SECTION: 目录页与共享评分层
+   页面（全部 / 各分类）-> 子页面（最低评分 / 最高评分 / 最近上线）
+   投票 gov +1 / dev -1 / mev 0（整票计入人数），平均分 =（gov-dev）/人数
+   共享通道：Pantry 篮子，仅追加日志；未配置或请求失败时自动降级本机
+   ============================================================ */
+(function () {
+  var reader = document.getElementById('reader');
+  var rowsBox = document.getElementById('csRows');
+  var pagesBox = document.getElementById('csPages');
+  var statusEl = document.getElementById('csStatus');
+  var curEl = document.getElementById('csCur');
+  if (!reader || !rowsBox || !pagesBox) return;
+
+  var API = 'https://getpantry.cloud/apiv1/pantry/';
+  var BASKET = 'c404-ratings';
+  var AVG_DIGITS = 2;
+  var K = { cfg: 'c404.pantry', log: 'c404.log', uid: 'c404.uid', hid: 'c404.hiddenCmts' };
+  var SUB_LABEL = { low: '最低评分', high: '最高评分', new: '最近上线' };
+  var PAGE_LABEL = { obj: '物品', ad: '数据', ent: '实体', spi: '效应', bug: '异常', sth: '事件', wp: '战斗单位' };
+
+  function store(k, v) {
+    try {
+      if (v === undefined) return localStorage.getItem(k);
+      localStorage.setItem(k, typeof v === 'string' ? v : JSON.stringify(v));
+    } catch (e) { return null; }
+  }
+  function getArr(k) {
+    var raw = store(k);
+    if (!raw) return [];
+    try { var a = JSON.parse(raw); return Array.isArray(a) ? a : []; } catch (e) { return []; }
+  }
+
+  // 设备身份：仅用于同人同条目取最新一票，不是账号，也可被清除
+  function uid() {
+    var u = store(K.uid);
+    if (!u) {
+      u = 'u' + Date.now().toString(36) + Math.random().toString(36).slice(2, 8);
+      store(K.uid, u);
+    }
+    return u;
+  }
+
+  /* ---------- 条目元数据：全部来自子页面 DOM，不另建一份设定 ---------- */
+  function readEntry(el) {
+    var out = {
+      id: el.id, seq: parseInt(el.getAttribute('data-seq'), 10) || 0,
+      intro: el.getAttribute('data-intro') || '',
+      code: '', name: '', cat: '', catcn: '', bug: '', thr: ''
+    };
+    var code = el.querySelector('.entry-code .code');
+    var pill = el.querySelector('.entry-code .pill');
+    var title = el.querySelector('.entry-title');
+    if (code) out.code = code.textContent.trim();
+    if (pill) {
+      var bits = pill.textContent.trim().split(/\s+/);
+      out.cat = bits[0] || '';
+      out.catcn = bits.slice(1).join(' ');
+    }
+    if (title) out.name = title.textContent.trim();
+    Array.prototype.forEach.call(el.querySelectorAll('.kv .field'), function (f) {
+      var dt = f.querySelector('dt'), dd = f.querySelector('dd');
+      if (!dt || !dd) return;
+      var k = dt.textContent.trim();
+      var p = dd.querySelector('.pill');
+      if (k.indexOf('附加') === 0 && p) out.bug = p.textContent.trim();
+      else if (k.indexOf('常规威胁') === 0 && p) out.thr = p.textContent.trim();
+    });
+    out.sortCode = out.code.replace(/^C404-/, '');
+    return out;
+  }
+
+  var entries = Array.prototype.slice.call(reader.querySelectorAll('.entry[data-seq]'))
+    .map(readEntry);
+  var byId = {};
+  entries.forEach(function (e) { byId[e.id] = e; });
+
+  /* ---------- 日志合并：共享 + 本机；同 id 去重；同人同条目取最后一票 ---------- */
+  var shared = { vote: [], cmt: [] };
+  var localLog = getArr(K.log);
+  var hidden = getArr(K.hid);
+  var basket = false;   // 篮子是否已建立；false 时首次写入走 POST 建篮
+
+  function allOf(kind) {
+    var seen = {}, list = [];
+    var pool = shared[kind].concat(localLog.filter(function (r) { return r.k === kind; }));
+    pool.forEach(function (r) {
+      if (!r || !r.id || seen[r.id] || !byId[r.e]) return;
+      seen[r.id] = 1;
+      list.push(r);
+    });
+    return list;
+  }
+
+  function myVote(entryId) {
+    var u = uid(), best = null;
+    allOf('vote').forEach(function (r) {
+      if (r.e === entryId && r.u === u && (!best || r.ts > best.ts)) best = r;
+    });
+    return best;
+  }
+
+  // 平均分：mev 计 0 分，但按整票计入分母
+  function score(entryId) {
+    var g = 0, d = 0, m = 0;
+    var latest = {};
+    allOf('vote').forEach(function (r) {
+      if (r.e !== entryId) return;
+      var prev = latest[r.u];
+      if (!prev || r.ts > prev.ts) latest[r.u] = r;
+    });
+    Object.keys(latest).forEach(function (k2) {
+      var v = latest[k2].v;
+      if (v === 'gov') g++; else if (v === 'dev') d++; else if (v === 'mev') m++;
+    });
+    var n = g + d + m;
+    return { gov: g, dev: d, mev: m, n: n, avg: n ? (g - d) / n : null };
+  }
+
+  function fmtAvg(a) {
+    if (a === null) return '—';
+    var s = a.toFixed(AVG_DIGITS);
+    return a > 0 ? '+' + s : s;
+  }
+
+  /* ---------- 三个排序子页面：共用同一份计算结果，只换比较器 ---------- */
+  function tieBreak(a, b) {
+    if (b.seq !== a.seq) return b.seq - a.seq;
+    return a.sortCode < b.sortCode ? -1 : a.sortCode > b.sortCode ? 1 : 0;
+  }
+  function compare(mode, x, y) {
+    var sx = score(x.id), sy = score(y.id);
+    if (mode === 'new') return y.seq - x.seq || tieBreak(x, y);
+    var ax = sx.avg, ay = sy.avg;
+    if (ax === null && ay === null) return tieBreak(x, y);
+    if (ax === null) return 1;          // 未评分一律排最后
+    if (ay === null) return -1;
+    return (mode === 'high' ? ay - ax : ax - ay) || tieBreak(x, y);
+  }
+
+  /* ---------- 页面按钮：全部 + 每个分类 ---------- */
+  var pages = [{ key: 'all', label: '全部' }];
+  Object.keys(PAGE_LABEL).forEach(function (c) {
+    if (entries.some(function (e) { return e.cat === c; })) pages.push({ key: c, label: PAGE_LABEL[c] });
+  });
+  var curPage = 'all', curSub = 'low';
+
+  function buildPages() {
+    var tpl = document.getElementById('tplPageBtn');
+    while (pagesBox.firstChild) pagesBox.removeChild(pagesBox.firstChild);
+    pages.forEach(function (p) {
+      var btn = tpl.content.cloneNode(true).firstElementChild;
+      var list = entries.filter(function (e) { return p.key === 'all' || e.cat === p.key; });
+      btn.querySelector('.cs-page-code').textContent = p.key === 'all' ? '*' : p.key;
+      btn.querySelector('.cs-page-name').textContent = p.label;
+      btn.querySelector('.cs-page-n').textContent = list.length;
+      btn.setAttribute('data-page', p.key);
+      btn.classList.toggle('is-on', p.key === curPage);
+      btn.setAttribute('aria-pressed', p.key === curPage ? 'true' : 'false');
+      pagesBox.appendChild(btn);
+    });
+  }
+
+  /* ---------- 列表渲染 ---------- */
+  function buildRows() {
+    var tpl = document.getElementById('tplRow');
+    var tplPill = document.getElementById('tplLvlPill');
+    var CLS = { rebg: 'p-red', xebg: 'p-gold', bybg: 'p-red', hiel: 'p-gold', mdel: 'p-blue', sael: 'p-teal', rwbg: 'p-gold', ptbg: 'p-blue', ftbg: 'p-teal', sfel: 'p-teal', usel: 'p-dim', bybug: 'p-red' };
+    var list = entries.filter(function (e) { return curPage === 'all' || e.cat === curPage; })
+      .sort(function (a, b) { return compare(curSub, a, b); });
+
+    while (rowsBox.firstChild) rowsBox.removeChild(rowsBox.firstChild);
+    list.forEach(function (e) {
+      var row = tpl.content.cloneNode(true).firstElementChild;
+      var s = score(e.id);
+      row.querySelector('.idx-num').textContent = e.sortCode;
+      row.querySelector('.idx-name').textContent = e.name;
+      row.querySelector('.cs-cat').textContent = e.cat;
+      var lvl = row.querySelector('.cs-lvl');
+      [e.bug, e.thr].forEach(function (v) {
+        if (!v) return;
+        var pill = tplPill.content.cloneNode(true).firstElementChild;
+        pill.textContent = v;
+        pill.classList.add(CLS[v] || 'p-dim');
+        lvl.appendChild(pill);
+      });
+      var avg = row.querySelector('.cs-avg');
+      avg.textContent = fmtAvg(s.avg);
+      if (s.avg === null) avg.classList.add('none');
+      else if (s.avg < 0) avg.classList.add('neg');
+      else if (s.avg === 0) avg.classList.add('zero');
+      row.querySelector('.cs-vc').textContent = s.n || '0';
+      row.setAttribute('href', '#' + e.id);
+      row.setAttribute('data-entry', e.id);
+      row.setAttribute('data-label', e.code + ' / ' + e.name);
+      rowsBox.appendChild(row);
+    });
+
+    if (curEl) curEl.textContent = (curPage === 'all' ? '全部' : curPage + ' ' + (PAGE_LABEL[curPage] || '')) +
+      ' · ' + SUB_LABEL[curSub] + ' · 共 ' + list.length + ' 条';
+  }
+
+  /* ---------- 正文子页面里的评分条与评论区 ---------- */
+  function mountRate(entryId) {
+    var entry = byId[entryId] && document.getElementById(entryId);
+    if (!entry) return;
+    var box = entry.querySelector('.rate');
+    if (!box) {
+      var tpl = document.getElementById('tplVote');
+      if (!tpl) return;
+      box = tpl.content.cloneNode(true).firstElementChild;
+      box.setAttribute('data-entry', entryId);
+      var foot = entry.querySelector('.entry-foot');
+      entry.insertBefore(box, foot || null);
+    }
+    var s = score(entryId);
+    var avgEl = box.querySelector('.rate-avg');
+    avgEl.textContent = '平均分 ' + fmtAvg(s.avg);
+    avgEl.className = 'rate-avg code ' + (s.avg === null ? 'none' : s.avg > 0 ? '' : s.avg < 0 ? 'neg' : 'zero');
+    box.querySelector('.rate-vc').textContent = '共 ' + s.n + ' 票';
+    box.querySelector('.rate-break').textContent = 'gov ' + s.gov + ' · dev ' + s.dev + ' · mev ' + s.mev;
+    var mine = myVote(entryId);
+    box.querySelector('.rate-mine').textContent = mine
+      ? '本机已投：' + mine.v + '（可改票，新票覆盖旧票）'
+      : '本机尚未投票';
+    Array.prototype.forEach.call(box.querySelectorAll('.rate-btn'), function (b) {
+      b.classList.toggle('is-mine', !!mine && b.getAttribute('data-vote') === mine.v);
+    });
+
+    var list = box.querySelector('.cmt-list');
+    var empty = box.querySelector('.cmt-empty');
+    var tplC = document.getElementById('tplCmt');
+    while (list.firstChild) list.removeChild(list.firstChild);
+    var mineC = allOf('cmt').filter(function (r) {
+      return r.e === entryId && hidden.indexOf(r.id) < 0;
+    }).sort(function (a, b) { return b.ts - a.ts; });
+    mineC.forEach(function (r) {
+      var li = tplC.content.cloneNode(true).firstElementChild;
+      li.querySelector('.cmt-body').textContent = String(r.t).slice(0, 120);
+      var d = new Date(r.ts);
+      function p2(n) { return (n < 10 ? '0' : '') + n; }
+      li.querySelector('.cmt-meta').textContent = r.u.slice(0, 7) + ' · ' + d.getFullYear() + '-' + p2(d.getMonth() + 1) + '-' +
+        p2(d.getDate()) + ' ' + p2(d.getHours()) + ':' + p2(d.getMinutes());
+      li.querySelector('.cmt-hide').setAttribute('data-hide', r.id);
+      list.appendChild(li);
+    });
+    empty.hidden = mineC.length > 0;
+  }
+
+  function refreshAll() {
+    buildRows();
+    var opened = document.querySelectorAll('.entry .rate');
+    Array.prototype.forEach.call(opened, function (el) { mountRate(el.getAttribute('data-entry')); });
+  }
+
+  /* ---------- 共享读写：仅追加，失败入本地待补队列 ---------- */
+  function setStatus(text, kind) {
+    if (!statusEl) return;
+    statusEl.textContent = text;
+    statusEl.className = 'cs-foot code' + (kind ? ' ' + kind : '');
+  }
+  function pantryId() { return (store(K.cfg) || '').trim(); }
+  function url() { return API + encodeURIComponent(pantryId()) + '/basket/' + BASKET; }
+
+  function record(kind, fields) {
+    var r = { id: 'r' + Date.now().toString(36) + Math.random().toString(36).slice(2, 7),
+              k: kind, u: uid(), ts: Date.now() };
+    Object.keys(fields).forEach(function (kk) { r[kk] = fields[kk]; });
+    var log = getArr(K.log);
+    log.push(r);
+    store(K.log, log);
+    localLog = log;
+    return r;
+  }
+
+  // Pantry 语义：PUT 是深度合并（值追加进数组），POST 是创建或整篮替换。
+  // 所以写入一律 PUT；仅当篮子还不存在（404）时 POST 建篮一次。
+  function pushShared(kind, rec, isNew) {
+    if (!pantryId() || !window.fetch) { setStatus('共享未连接 · 评分与留言仅记录在本机', ''); return; }
+    var body = {};
+    body[kind] = [rec];
+    if (isNew) body[cross(kind)] = [];
+    setStatus('正在写入共享日志……', '');
+    return fetch(url(), {
+      method: isNew ? 'POST' : 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body)
+    }).then(function (res) {
+      if (res.status === 404 && !isNew) return pushShared(kind, rec, true);
+      if (!res.ok) throw new Error('HTTP ' + res.status);
+      basket = true;
+      setStatus('共享已写入 · ' + new Date().toLocaleTimeString(), 'on');
+    }).catch(function (e) {
+      setStatus('共享写入失败 · 已存本机，下次进入自动补交（' + (e.message || '网络受限') + '）', 'err');
+    });
+  }
+
+  function cross(k) { return k === 'vote' ? 'cmt' : 'vote'; }
+
+  function loadShared() {
+    if (!pantryId() || !window.fetch) return;
+    fetch(url(), { method: 'GET', headers: { Accept: 'application/json' } })
+      .then(function (res) {
+        if (!res.ok) throw new Error('HTTP ' + res.status);
+        return res.json();
+      })
+      .then(function (data) {
+        shared.vote = Array.isArray(data && data.vote) ? data.vote : [];
+        shared.cmt = Array.isArray(data && data.cmt) ? data.cmt : [];
+        // 补交本机离线期间的记录
+        var pend = getArr(K.log).filter(function (r) { return !r.synced; }).slice(0, 15);
+        pend.forEach(function (r, i) {
+          if (Array.isArray(shared[r.k]) && shared[r.k].some(function (x) { return x.id === r.id; })) return;
+          setTimeout(function () { pushShared(r.k, r, !basket); }, 400 + i * 400);
+        });
+        setStatus('共享已连接 · 日志 ' + (shared.vote.length + shared.cmt.length) + ' 条', 'on');
+        refreshAll();
+      })
+      .catch(function (err) {
+        if (/404/.test(err.message || '')) {
+          basket = false;
+          shared.vote = []; shared.cmt = [];
+          setStatus('共享端点已连 · 篮子为空，首次写入将自动建篮', 'on');
+          refreshAll();
+          return;
+        }
+        setStatus('共享连接失败 · 已降级为本机记录（' + (err.message || '网络受限') + '）', 'err');
+      });
+  }
+
+  /* ---------- 事件 ---------- */
+  pagesBox.addEventListener('click', function (ev) {
+    var b = ev.target.closest('.cs-page');
+    if (!b) return;
+    curPage = b.getAttribute('data-page');
+    Array.prototype.forEach.call(pagesBox.children, function (el) {
+      var on = el.getAttribute('data-page') === curPage;
+      el.classList.toggle('is-on', on);
+      el.setAttribute('aria-pressed', on ? 'true' : 'false');
+    });
+    buildRows();
+  });
+
+  var panel = document.getElementById('console');
+  if (panel) panel.addEventListener('click', function (ev) {
+    var s = ev.target.closest('.cs-sub');
+    if (!s) return;
+    curSub = s.getAttribute('data-sub');
+    Array.prototype.forEach.call(s.parentNode.children, function (el) {
+      el.classList.toggle('is-on', el === s);
+    });
+    buildRows();
+  });
+
+  if (reader) reader.addEventListener('click', function (ev) {
+    var btn = ev.target.closest('.rate-btn');
+    if (btn) {
+      var box = btn.closest('.rate');
+      var eId = box.getAttribute('data-entry');
+      var rec = record('vote', { e: eId, v: btn.getAttribute('data-vote') });
+      box.classList.add('busy');
+      pushShared('vote', rec);
+      setTimeout(function () { box.classList.remove('busy'); refreshAll(); }, 500);
+      return;
+    }
+    var send = ev.target.closest('.cmt-send');
+    if (send && send.parentNode.querySelector('.cmt-input')) {
+      var box2 = send.closest('.rate');
+      var input = send.parentNode.querySelector('.cmt-input');
+      var text = String(input.value || '').replace(/\s+/g, ' ').trim().slice(0, 120);
+      if (!text) { input.focus(); return; }
+      if (/https?:\/\/|www\./i.test(text)) { setStatus('留言不含链接 · 已拦截', 'err'); return; }
+      var rec2 = record('cmt', { e: box2.getAttribute('data-entry'), t: text });
+      input.value = '';
+      pushShared('cmt', rec2);
+      refreshAll();
+      return;
+    }
+    var hide = ev.target.closest('.cmt-hide');
+    if (hide) {
+      var hid = getArr(K.hid);
+      var id = hide.getAttribute('data-hide');
+      if (hid.indexOf(id) < 0) { hid.push(id); store(K.hid, hid); hidden = hid; }
+      refreshAll();
+    }
+  });
+
+  // 打开子页面时挂载该条目的评分与评论
+  var mo = window.MutationObserver && new MutationObserver(function (ms) {
+    ms.forEach(function (m) {
+      if (m.type !== 'attributes' || m.attributeName !== 'hidden') return;
+      var el = m.target;
+      if (el.classList && el.classList.contains('entry') && !el.hidden) mountRate(el.id);
+    });
+  });
+  if (mo) Array.prototype.forEach.call(reader.querySelectorAll('.entry'), function (el) { mo.observe(el, { attributes: true }); });
+
+  // 共享设置
+  var idInput = document.getElementById('pantryId');
+  var saveBtn = document.getElementById('shareSave');
+  var testBtn = document.getElementById('shareTest');
+  var shareStatus = document.getElementById('shareStatus');
+  function showCfg() { if (idInput) idInput.value = pantryId(); }
+  function cfgMsg(t, c) { if (shareStatus) { shareStatus.textContent = t; shareStatus.className = 'cs-hint code' + (c ? ' ' + c : ''); } }
+  if (saveBtn) saveBtn.addEventListener('click', function () {
+    var v = String(idInput.value || '').trim();
+    if (v) store(K.cfg, v); else try { localStorage.removeItem(K.cfg); } catch (e) {}
+    showCfg();
+    cfgMsg(v ? '已保存 Pantry ID · 正在连接……' : '已清除 Pantry ID · 回到本机记录', '');
+    if (v) loadShared(); else setStatus('共享未连接 · 评分与留言仅记录在本机', '');
+  });
+  if (testBtn) testBtn.addEventListener('click', function () {
+    if (!pantryId()) { cfgMsg('请先填写 Pantry ID', 'err'); return; }
+    cfgMsg('测试中……', '');
+    fetch(url(), { method: 'GET', headers: { Accept: 'application/json' } }).then(function (r) {
+      cfgMsg('端点可达 · HTTP ' + r.status, r.ok ? 'on' : '');
+      if (r.ok) return r.json().then(function (d) {
+        cfgMsg('读取成功 · vote ' + ((d && d.vote) || []).length + ' 条 / cmt ' + ((d && d.cmt) || []).length + ' 条', 'on');
+      });
+    }).catch(function (e) {
+      cfgMsg('不可达：' + (e.message || '跨域或网络受限') + '（以 file:// 打开时浏览器可能拦截）', 'err');
+    });
+  });
+
+  showCfg();
+  buildPages();
+  buildRows();
+  // 目录行是动态生成的，生成后再让自检统计真实入口数
+  if (window.C404_RECHECK) window.C404_RECHECK();
+  loadShared();
+})();
+
+/* ============================================================
+   SECTION: 滚动状态（导航投影、回到顶部、当前区块高亮）
+   ============================================================ */
+(function () {
+  var nav = document.getElementById('nav');
+  var toTop = document.getElementById('toTop');
+  var links = Array.prototype.slice.call(
+    document.querySelectorAll('#navLinks a[href^="#"]'));
+  var sections = links
+    .map(function (a) { return document.querySelector(a.getAttribute('href')); })
+    .filter(Boolean);
+  var ticking = false;
+
+  function render() {
+    var y = window.scrollY || document.documentElement.scrollTop;
+    nav.classList.toggle('is-scrolled', y > 8);
+    toTop.classList.toggle('is-show', y > 480);
+
+    // 计算当前所处区块：取最后一个已越过判定线的 section
+    var line = y + 120;
+    var current = null;
+    for (var i = 0; i < sections.length; i++) {
+      if (sections[i].offsetTop <= line) current = sections[i].id;
+    }
+    for (var j = 0; j < links.length; j++) {
+      links[j].classList.toggle(
+        'is-active', links[j].getAttribute('href') === '#' + current);
+    }
+    ticking = false;
+  }
+
+  function onScroll() {
+    if (!ticking) {
+      ticking = true;
+      window.requestAnimationFrame(render);
+    }
+  }
+
+  window.addEventListener('scroll', onScroll, { passive: true });
+  window.addEventListener('resize', onScroll);
+  render();
+
+  toTop.addEventListener('click', function () {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  });
+})();
+</script>
+</body>
+</html>
