@@ -1557,11 +1557,159 @@ body.view-panel .hide-panel { display: none !important; }
 .cmt-hide:hover { color: var(--red); }
 .cmt-empty { color: var(--text-faint); font-size: .8em; margin: 6px 0 0; }
 .rate.busy .rate-btn, .rate.busy .cmt-send { opacity: .55; pointer-events: none; }
+   /* ============================================================
+   SECTION: 入场验证遮罩层（终端验证 + 长按指纹）
+   ============================================================ */
+.gatekeeper {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  background: var(--bg);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  color: var(--glitch);
+  transition: opacity 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+  overflow: hidden;
+}
+.gatekeeper.fade-out {
+  opacity: 0;
+  pointer-events: none;
+}
+.gate-step {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 18px;
+  width: 100%;
+  max-width: 500px;
+  padding: 20px;
+  text-align: center;
+}
+.terminal-line {
+  font-size: 1.1rem;
+  letter-spacing: 0.05em;
+  line-height: 1.5;
+  opacity: 0;
+  transition: opacity 0.4s ease;
+}
+.terminal-line.show {
+  opacity: 1;
+}
+.terminal-line.success {
+  color: var(--gold);
+}
+
+/* 指纹长按容器 */
+.fingerprint-container {
+  position: relative;
+  width: 140px;
+  height: 140px;
+  margin-top: 20px;
+  cursor: pointer;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-touch-callout: none;
+}
+.fingerprint-svg {
+  position: absolute;
+  top: 20px;
+  left: 20px;
+  width: 100px;
+  height: 100px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2.5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  transition: all 0.3s ease;
+  pointer-events: none;
+}
+.fingerprint-container.active .fingerprint-svg {
+  color: #fff;
+  filter: drop-shadow(0 0 12px var(--glitch));
+}
+/* 进度环 */
+.progress-ring {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 140px;
+  height: 140px;
+  transform: rotate(-90deg);
+  pointer-events: none;
+}
+.progress-circle {
+  fill: transparent;
+  stroke: currentColor;
+  stroke-width: 3;
+  stroke-dasharray: 408; /* 2 * PI * 65 */
+  stroke-dashoffset: 408;
+}
+.progress-circle.active {
+  transition: stroke-dashoffset 0.05s linear;
+}
+
+#gateHint {
+  font-size: 0.95rem;
+  color: var(--text-dim);
+  transition: color 0.3s ease;
+  letter-spacing: 0.08em;
+}
+.fingerprint-container.active ~ #gateHint {
+  color: var(--glitch);
+}
+
+/* 背景扫描线特效，增强终端感 */
+.gatekeeper::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(to bottom, transparent 0 3px, rgba(69, 230, 214, 0.03) 3px 4px);
+  pointer-events: none;
+}
 </style>
 </head>
 
 <body class="vignette">
+<!-- ============================================================
+     SECTION: 入场验证界面
+     ============================================================ -->
+<div id="gatekeeper" class="gatekeeper">
+  <!-- 第一步：密钥验证 -->
+  <div class="gate-step" id="gateStep1">
+    <div class="terminal-line" id="termLine1">> C404 SYSTEM BOOT // SECURE PROTOCOL V3.1</div>
+    <div class="terminal-line" id="termLine2">> 正在验证访问密钥...</div>
+    <div class="terminal-line success" id="termLine3">> 密钥验证通过。欢迎，研究员。</div>
+  </div>
 
+  <!-- 第二步：指纹验证 -->
+  <div class="gate-step" id="gateStep2" hidden>
+    <div class="terminal-line show">> 正在验证人员权限...</div>
+    <div class="fingerprint-container" id="fingerprintBox">
+      <svg class="fingerprint-svg" viewBox="0 0 100 100">
+        <path d="M 50 20 C 25 20, 15 45, 20 65 C 25 85, 45 95, 65 85 C 85 75, 85 45, 70 30" />
+        <path d="M 50 30 C 32 30, 25 50, 30 65 C 35 80, 50 85, 62 75 C 75 65, 75 45, 62 38" />
+        <path d="M 50 40 C 40 40, 35 55, 38 65 C 41 75, 50 78, 58 70 C 65 62, 65 50, 58 45" />
+        <path d="M 50 50 C 45 50, 42 55, 45 60 C 48 65, 52 65, 55 60 C 58 55, 55 50, 50 50" />
+        <path d="M 30 90 C 45 100, 70 90, 80 75" />
+        <path d="M 20 75 C 25 95, 55 105, 75 90" />
+      </svg>
+      <svg class="progress-ring" viewBox="0 0 140 140">
+        <circle class="progress-circle" cx="70" cy="70" r="65" />
+      </svg>
+    </div>
+    <div id="gateHint">请长按指纹以确认身份</div>
+  </div>
+
+  <!-- 第三步：验证成功 -->
+  <div class="gate-step" id="gateStep3" hidden>
+    <div class="terminal-line success show">> 身份已确认。4级高级程序员，欢迎回来。</div>
+    <div class="terminal-line show" style="color: var(--text-dim);">> 正在加载现实层数据...</div>
+  </div>
+</div>
 <!-- SECTION: 背景纹理层 -->
 <div class="fx fx-scan" aria-hidden="true"></div>
 <div class="fx fx-stream" aria-hidden="true"></div>
@@ -4097,6 +4245,121 @@ body.view-panel .hide-panel { display: none !important; }
   toTop.addEventListener('click', function () {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   });
+})();
+   /* ============================================================
+   SECTION: 入场验证交互逻辑
+   ============================================================ */
+(function () {
+  var gate = document.getElementById('gatekeeper');
+  if (!gate) return;
+
+  // 锁定页面滚动
+  document.body.classList.add('lock-scroll');
+
+  var step1 = document.getElementById('gateStep1');
+  var step2 = document.getElementById('gateStep2');
+  var step3 = document.getElementById('gateStep3');
+  var termLine1 = document.getElementById('termLine1');
+  var termLine2 = document.getElementById('termLine2');
+  var termLine3 = document.getElementById('termLine3');
+
+  // 1. 模拟终端打字输出效果
+  setTimeout(function() { termLine1.classList.add('show'); }, 300);
+  setTimeout(function() { termLine2.classList.add('show'); }, 1000);
+  setTimeout(function() { termLine3.classList.add('show'); }, 2000);
+
+  // 2. 切换到指纹验证
+  setTimeout(function() {
+    step1.hidden = true;
+    step2.hidden = false;
+  }, 3200);
+
+  // 3. 指纹长按逻辑
+  var fpBox = document.getElementById('fingerprintBox');
+  var circle = fpBox.querySelector('.progress-circle');
+  var hint = document.getElementById('gateHint');
+  
+  var pressTimer = null;
+  var progress = 0;
+  var maxProgress = 408; // 对应 CSS 中 circle 的周长 (2 * PI * 65)
+  var holdDuration = 1200; // 需要长按的毫秒数 (1.2秒)
+  var interval = 20; // 刷新频率
+  var stepPerTick = maxProgress / (holdDuration / interval);
+
+  // 触发震动反馈 (仅限手机设备)
+  function vibrate(ms) {
+    if (navigator.vibrate) navigator.vibrate(ms);
+  }
+
+  function startPress(e) {
+    if (e.type === 'mousedown' && e.button !== 0) return;
+    e.preventDefault(); // 防止移动端长按选中文本或弹出菜单
+    if (pressTimer) return;
+
+    vibrate(30);
+    fpBox.classList.add('active');
+    hint.textContent = '正在扫描生物特征...';
+    circle.classList.add('active');
+
+    pressTimer = setInterval(function () {
+      progress += stepPerTick;
+      if (progress >= maxProgress) {
+        progress = maxProgress;
+        clearInterval(pressTimer);
+        pressTimer = null;
+        verifySuccess();
+      }
+      // 动态更新进度环
+      circle.style.strokeDashoffset = maxProgress - progress;
+    }, interval);
+  }
+
+  function endPress() {
+    if (!pressTimer) return;
+    clearInterval(pressTimer);
+    pressTimer = null;
+    progress = 0;
+    fpBox.classList.remove('active');
+    hint.textContent = '请长按指纹以确认身份';
+    circle.classList.remove('active');
+    circle.style.strokeDashoffset = maxProgress;
+  }
+
+  // 绑定鼠标和触摸事件
+  fpBox.addEventListener('mousedown', startPress);
+  fpBox.addEventListener('touchstart', startPress, { passive: false });
+  
+  document.addEventListener('mouseup', endPress);
+  document.addEventListener('touchend', endPress);
+  fpBox.addEventListener('mouseleave', endPress); // 鼠标移出取消
+  fpBox.addEventListener('touchcancel', endPress); // 触摸被打断取消
+
+  // 4. 验证成功，进入网站
+  function verifySuccess() {
+    vibrate([100, 50, 100]); // 成功震动节奏
+    
+    fpBox.style.color = '#fff';
+    fpBox.style.filter = 'drop-shadow(0 0 20px var(--glitch))';
+    hint.textContent = '验证通过';
+    hint.style.color = 'var(--glitch)';
+
+    // 切换到成功提示文字
+    setTimeout(function() {
+      step2.hidden = true;
+      step3.hidden = false;
+    }, 500);
+
+    // 遮罩层淡出并解锁页面滚动
+    setTimeout(function() {
+      gate.classList.add('fade-out');
+      document.body.classList.remove('lock-scroll');
+      
+      // 彻底隐藏遮罩
+      setTimeout(function() {
+        gate.style.display = 'none';
+      }, 800);
+    }, 2200);
+  }
 })();
 </script>
 </body>
